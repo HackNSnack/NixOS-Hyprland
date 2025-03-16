@@ -228,24 +228,17 @@ if [ -d ~/Hyprland-Dots ]; then
     git pull
     chmod +x copy.sh
     ./copy.sh
-    cp ~/.config/zsh/* ~/
-    cp ~/.config/zsh/.zshrc ~/.zshrc
+    cp ~/Hyrpland-Dots/config/zsh/* ~/
+    cp ~/Hyprland-Dots/config/zsh/.zshrc ~/.zshrc
     printf "Succesfully copied ZSH files!"
 else
     if git clone --depth 1 https://github.com/Mathipe98/Hyprland-Dots ~/Hyprland-Dots; then
         cd ~/Hyprland-Dots || exit 1
         chmod +x copy.sh
         ./copy.sh
-        cp ~/.config/zsh/* ~/
-        cp ~/.config/zsh/.zshrc ~/.zshrc
+        cp ~/Hyrpland-Dots/config/zsh/* ~/
+        cp ~/Hyprland-Dots/config/zsh/.zshrc ~/.zshrc
         printf "Succesfully copied ZSH files!"
-        for FILE in "~/.config/hyprlock*.conf"; do
-            if [ -e "$FILE" ]; then
-                mv "$FILE" "$FOLDER/hyprlock.conf"
-                echo "Renamed '$FILE' to 'hyprlock.conf'"
-                break
-            fi
-        done
     else
         echo -e "$ERROR Can't download Hyprland-Dots"
     fi
@@ -281,4 +274,3 @@ else
     printf "\n${WARN} Hyprland failed to install. Please check Install-Logs...${RESET}\n\n"
     exit 1
 fi
-
