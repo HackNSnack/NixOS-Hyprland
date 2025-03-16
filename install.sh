@@ -85,9 +85,9 @@ sleep 1
 
 echo "-----"
 
-read -rp "$CAT Enter Your New Hostname: [ default ] " hostName
+read -rp "$CAT Enter Your New Hostname: [ hyprland-desktop ] " hostName
 if [ -z "$hostName" ]; then
-    hostName="default"
+    hostName="hyprland-desktop"
 fi
 
 echo "-----"
@@ -102,9 +102,9 @@ else
 fi
 echo "-----"
 
-read -rp "$CAT Enter your keyboard layout: [ us ] " keyboardLayout
+read -rp "$CAT Enter your keyboard layout: [ no ] " keyboardLayout
 if [ -z "$keyboardLayout" ]; then
-    keyboardLayout="us"
+    keyboardLayout="no"
 fi
 
 sed -i 's/keyboardLayout\s*=\s*"\([^"]*\)"/keyboardLayout = "'"$keyboardLayout"'"/' ./hosts/$hostName/variables.nix
