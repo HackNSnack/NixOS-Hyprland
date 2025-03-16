@@ -14,7 +14,8 @@
   in {
 
   nixpkgs.config.allowUnfree = true;
-  
+  nixpkgs.config.allowUnsupportedSystem = true;  
+
   environment.systemPackages = (with pkgs; [
   # System Packages
     bc
@@ -122,9 +123,11 @@
 	  hyprlock.enable = true;
 	  firefox.enable = true;
 	  git.enable = true;
-    nm-applet.indicator = true;
-    #neovim.enable = true;
-
+      nm-applet.indicator = true;
+      neovim = {
+	    enable = true;
+	    defaultEditor = true;
+ 	  };
 	  thunar.enable = true;
 	  thunar.plugins = with pkgs.xfce; [
 		  exo
