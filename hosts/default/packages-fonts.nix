@@ -38,6 +38,21 @@
     wget
     xdg-user-dirs
     xdg-utils
+    gnumake
+    go
+    inputs.fix-python.packages.${pkgs.system}.default
+    #fix-python
+    xorg.libSM
+    xorg.libXext
+    opencv
+    libuuid
+
+     # Dotnet
+    csharpier
+    dotnetCorePackages.dotnet_8.sdk
+    dotnetCorePackages.dotnet_8.runtime
+    dotnetCorePackages.dotnet_8.aspnetcore
+    csharp-ls       
 
     fastfetch
     (mpv.override {scripts = [mpvScripts.mpris];}) # with tray
@@ -49,6 +64,7 @@
     btop
     brightnessctl # for brightness control
     cava
+    cavalier
     cliphist
     loupe
     gnome-system-monitor
@@ -84,6 +100,7 @@
     xarchiver
     yad
     yt-dlp
+
 
     #waybar  # if wanted experimental next line
     #(pkgs.waybar.overrideAttrs (oldAttrs: { mesonFlags = oldAttrs.mesonFlags ++ [ "-Dexperimental=true" ];}))
