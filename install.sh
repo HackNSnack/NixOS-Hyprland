@@ -228,7 +228,7 @@ if [ -d ~/Hyprland-Dots ]; then
     git pull
     chmod +x copy.sh
     ./copy.sh
-    cp ~/Hyrpland-Dots/config/zsh/* ~/
+    cp ~/Hyprland-Dots/config/zsh/* ~/
     cp ~/Hyprland-Dots/config/zsh/.zshrc ~/.zshrc
     printf "Succesfully copied ZSH files!"
 else
@@ -236,7 +236,7 @@ else
         cd ~/Hyprland-Dots || exit 1
         chmod +x copy.sh
         ./copy.sh
-        cp ~/Hyrpland-Dots/config/zsh/* ~/
+        cp ~/Hyprland-Dots/config/zsh/* ~/
         cp ~/Hyprland-Dots/config/zsh/.zshrc ~/.zshrc
         printf "Succesfully copied ZSH files!"
     else
