@@ -69,6 +69,10 @@ in
         # Div
 	    slack
 	    xclip
+
+        # Calculator
+        libqalculate
+        rofi-calc
       ];
 
     };
