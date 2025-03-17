@@ -228,17 +228,17 @@ if [ -d ~/Hyprland-Dots ]; then
     git pull
     chmod +x copy.sh
     ./copy.sh
-    #cp ~/Hyprland-Dots/config/zsh/* ~/
-    #cp ~/Hyprland-Dots/config/zsh/.zshrc ~/.zshrc
-    #printf "Succesfully copied ZSH files!"
+    cp ~/Hyprland-Dots/config/zsh/* ~/
+    cp ~/Hyprland-Dots/config/zsh/.zshrc ~/.zshrc
+    printf "Succesfully copied ZSH files!"
 else
     if git clone --depth 1 https://github.com/Mathipe98/Hyprland-Dots ~/Hyprland-Dots; then
         cd ~/Hyprland-Dots || exit 1
         chmod +x copy.sh
         ./copy.sh
-        #cp ~/Hyprland-Dots/config/zsh/* ~/
-        #cp ~/Hyprland-Dots/config/zsh/.zshrc ~/.zshrc
-        #printf "Succesfully copied ZSH files!"
+        cp ~/Hyprland-Dots/config/zsh/* ~/
+        cp ~/Hyprland-Dots/config/zsh/.zshrc ~/.zshrc
+        printf "Succesfully copied ZSH files!"
     else
         echo -e "$ERROR Can't download Hyprland-Dots"
     fi
