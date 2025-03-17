@@ -56,6 +56,11 @@
 
     fastfetch
     (mpv.override {scripts = [mpvScripts.mpris];}) # with tray
+    (azure-cli.withExtensions [
+            azure-cli.extensions.aks-preview
+            azure-cli.extensions.webapp
+            azure-cli.extensions.redisenterprise
+        ])
     #ranger
       
     # Hyprland Stuff
