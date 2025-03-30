@@ -13,6 +13,7 @@
   imports = [
     ./hardware.nix
     ./users.nix
+    ./ollama_cuda.nix
     ./packages-fonts.nix
     ../../modules/amd-drivers.nix
     ../../modules/nvidia-drivers.nix
@@ -103,7 +104,7 @@
   # Extra Module Options
   drivers.amdgpu.enable = false;
   drivers.intel.enable = true;
-   drivers.nvidia.enable = true;
+  drivers.nvidia.enable = true;
   drivers.nvidia-prime = {
     enable = false;
     intelBusID = "";
@@ -143,8 +144,8 @@
   # Services to start
   services = {
     xserver = {
-      enable = false;
-      #videoDrivers = [ "modesetting" "displaylink" ];
+      enable = true;
+      videoDrivers = [ "nvidia" ];
       xkb = {
         layout = "${keyboardLayout}";
         variant = "";

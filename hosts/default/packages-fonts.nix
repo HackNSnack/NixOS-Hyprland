@@ -3,7 +3,7 @@
 
 { pkgs, inputs, ...}: let
 
-  python-packages = pkgs.python3.withPackages (
+  python-packages = pkgs.python312.withPackages (
     ps:
       with ps; [
         requests

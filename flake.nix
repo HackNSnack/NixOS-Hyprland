@@ -21,7 +21,9 @@
     pkgs = import nixpkgs {
        	inherit system;
        	config = {
-       	allowUnfree = true;
+       	  allowUnfree = true;
+          cudaSupport = true;
+          };
        	};
       };
     in
