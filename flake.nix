@@ -23,7 +23,6 @@
        	config = {
        	  allowUnfree = true;
           cudaSupport = true;
-          };
        	};
       };
     in
