@@ -103,7 +103,7 @@
   # Extra Module Options
   drivers.amdgpu.enable = false;
   drivers.intel.enable = true;
-  drivers.nvidia.enable = false;
+   drivers.nvidia.enable = true;
   drivers.nvidia-prime = {
     enable = false;
     intelBusID = "";
@@ -143,8 +143,8 @@
   # Services to start
   services = {
     xserver = {
-      enable = true;
-      videoDrivers = [ "modesetting" "displaylink" ];
+      enable = false;
+      #videoDrivers = [ "modesetting" "displaylink" ];
       xkb = {
         layout = "${keyboardLayout}";
         variant = "";
