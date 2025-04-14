@@ -51,6 +51,7 @@
     stylua
     lua-language-server
     nil
+    nixfmt-rfc-style
     
 
      # Dotnet
