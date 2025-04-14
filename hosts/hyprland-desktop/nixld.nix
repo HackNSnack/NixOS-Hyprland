@@ -39,7 +39,7 @@
       openssl
       pango
       pipewire
-      stdenv.cc.cc 
+      stdenv.cc.cc
       systemd
       vulkan-loader
       xorg.libX11
