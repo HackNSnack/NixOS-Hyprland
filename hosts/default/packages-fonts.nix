@@ -50,6 +50,8 @@
     llm-ls
     stylua
     lua-language-server
+    nil
+    
 
      # Dotnet
     csharpier
