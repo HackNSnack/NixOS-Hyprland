@@ -49,7 +49,6 @@
     mysql84
     llm-ls
     stylua
-    lua-language-server
 
      # Dotnet
     csharpier
