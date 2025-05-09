@@ -150,6 +150,10 @@ in
     };
 
     waybar.enable = true;
+    wireshark = {
+      enable = true;
+      #usbmon.enable = true;
+    };
     hyprlock.enable = true;
     firefox.enable = true;
     git.enable = true;
