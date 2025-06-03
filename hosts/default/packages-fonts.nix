@@ -8,6 +8,9 @@ let
     ps: with ps; [
       requests
       pyquery # needed for hyprland-dots Weather script
+      pyodbc
+      numpy
+      pandas
     ]
   );
 
@@ -55,6 +58,7 @@ in
       nil
       nixfmt-rfc-style
       wireshark
+      unixODBC
 
       # Dotnet
       csharpier
@@ -62,6 +66,7 @@ in
       dotnetCorePackages.dotnet_8.runtime
       dotnetCorePackages.dotnet_8.aspnetcore
       csharp-ls
+      netcoredbg
 
       fastfetch
       (mpv.override { scripts = [ mpvScripts.mpris ]; }) # with tray

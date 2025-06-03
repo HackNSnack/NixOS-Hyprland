@@ -55,6 +55,7 @@ in
       nil
       nixfmt-rfc-style
       wireshark
+      unixODBC
 
       # Dotnet
       csharpier
@@ -62,6 +63,7 @@ in
       dotnetCorePackages.dotnet_8.runtime
       dotnetCorePackages.dotnet_8.aspnetcore
       csharp-ls
+      netcoredbg
 
       fastfetch
       (mpv.override { scripts = [ mpvScripts.mpris ]; }) # with tray
