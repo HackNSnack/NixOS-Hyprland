@@ -66,9 +66,9 @@ in
 
       # Dotnet
       csharpier
-      dotnetCorePackages.dotnet_8.sdk
-      dotnetCorePackages.dotnet_8.runtime
-      dotnetCorePackages.dotnet_8.aspnetcore
+      dotnetCorePackages.dotnet_9.sdk
+      dotnetCorePackages.dotnet_9.runtime
+      dotnetCorePackages.dotnet_9.aspnetcore
       csharp-ls
       netcoredbg
 
