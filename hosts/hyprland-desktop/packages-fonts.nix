@@ -69,6 +69,9 @@ in
       dotnetCorePackages.dotnet_9.sdk
       dotnetCorePackages.dotnet_9.runtime
       dotnetCorePackages.dotnet_9.aspnetcore
+      dotnetCorePackages.dotnet_8.sdk
+      dotnetCorePackages.dotnet_8.runtime
+      dotnetCorePackages.dotnet_8.aspnetcore
       csharp-ls
       netcoredbg
 
