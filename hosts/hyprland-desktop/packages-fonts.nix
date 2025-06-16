@@ -8,6 +8,9 @@ let
     ps: with ps; [
       requests
       pyquery # needed for hyprland-dots Weather script
+      pyodbc
+      numpy
+      pandas
     ]
   );
 
@@ -56,12 +59,16 @@ in
       nixfmt-rfc-style
       wireshark
       unixODBC
+      unixODBCDrivers.psql
+      #unixODBCDrivers.mysql
+      unixODBCDrivers.sqlite
+      unixODBCDrivers.msodbcsql18
 
       # Dotnet
       csharpier
-      dotnetCorePackages.dotnet_8.sdk
-      dotnetCorePackages.dotnet_8.runtime
-      dotnetCorePackages.dotnet_8.aspnetcore
+      dotnetCorePackages.dotnet_9.sdk
+      dotnetCorePackages.dotnet_9.runtime
+      dotnetCorePackages.dotnet_9.aspnetcore
       csharp-ls
       netcoredbg
 

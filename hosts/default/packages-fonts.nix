@@ -59,6 +59,10 @@ in
       nixfmt-rfc-style
       wireshark
       unixODBC
+      unixODBCDrivers.psql
+      #unixODBCDrivers.mysql
+      unixODBCDrivers.sqlite
+      unixODBCDrivers.msodbcsql18
 
       # Dotnet
       csharpier
