@@ -1,6 +1,11 @@
 # 💫 https://github.com/JaKooLit 💫 #
 
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 with lib;
 let
   cfg = config.drivers.intel;
@@ -21,7 +26,7 @@ in
         intel-media-driver
         libvdpau-va-gl
         libva
-			  libva-utils
+        libva-utils
       ];
     };
   };

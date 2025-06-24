@@ -1,10 +1,15 @@
-{ pkgs, username, lib, ... }:
+{
+  pkgs,
+  username,
+  lib,
+  ...
+}:
 
 let
   inherit (import ./variables.nix) gitUsername;
 in
 {
-  users = { 
+  users = {
     mutableUsers = true;
     users."${username}" = {
       homeMode = "755";
@@ -16,29 +21,29 @@ in
         "libvirtd"
         "scanner"
         "lp"
-        "video" 
-        "input" 
+        "video"
+        "input"
         "audio"
+        "docker"
       ];
 
       # define user packages here
       packages = with pkgs; [
 
         # Terminal
-	    zsh
-	    oh-my-posh
-	    fzf
-	    fd
-	    bat
-	    eza
+        zsh
+        oh-my-posh
+        fzf
+        fd
+        bat
+        eza
         ripgrep
 
-    
         # Browser
-	    vivaldi
-        
+        vivaldi
+
         # Proton
-	    protonvpn-gui
+        protonvpn-gui
         proton-pass
         protonmail-desktop
 
@@ -55,20 +60,20 @@ in
         spotify
         jamesdsp
         #cavalier
-  
+
         # Keyboard
         vial # QMK Firmware (Keyboard)
         via
 
         # Dev
-	    vscode
-	    pnpm
-	    nodejs
-	    gh
+        vscode
+        pnpm
+        nodejs
+        gh
 
         # Div
-	    slack
-	    xclip
+        slack
+        xclip
 
         # Calculator
         libqalculate
@@ -76,12 +81,15 @@ in
       ];
 
     };
-    
+
     defaultUserShell = pkgs.zsh;
-  }; 
-  
+  };
+
   environment.shells = with pkgs; [ zsh ];
-  environment.systemPackages = with pkgs; [ lsd fzf ]; 
+  environment.systemPackages = with pkgs; [
+    lsd
+    fzf
+  ];
 
   programs = {
     # Zsh configuration
@@ -89,10 +97,10 @@ in
     zsh = {
       enable = true;
       enableCompletion = true;
-      
+
       autosuggestions.enable = true;
       syntaxHighlighting.enable = true;
-      
-      };
-   };
+
+    };
+  };
 }

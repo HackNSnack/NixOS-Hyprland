@@ -1,6 +1,11 @@
 # 💫 https://github.com/JaKooLit 💫 #
 
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 with lib;
 let
   cfg = config.drivers.nvidia-prime;

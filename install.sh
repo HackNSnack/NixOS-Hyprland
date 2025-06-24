@@ -140,8 +140,8 @@ done
 echo "-----"
 
 echo "$NOTE Setting Required Nix Settings Then Going To Install"
-git config --global user.name "installer"
-git config --global user.email "installer@gmail.com"
+git config --global user.name "Mathipe98"
+git config --global user.email "mathias.pettersen@proton.me"
 git add .
 sed -i 's/host\s*=\s*"\([^"]*\)"/host = "'"$hostName"'"/' ./flake.nix
 
