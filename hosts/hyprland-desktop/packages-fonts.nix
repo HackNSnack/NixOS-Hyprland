@@ -5,20 +5,13 @@
 let
 
   python-packages = pkgs.python312.withPackages (
-    ps: with ps; [
-      requests
-      pyquery # needed for hyprland-dots Weather script
+    ps:
+      with ps; [
+        requests
+        pyquery # needed for hyprland-dots Weather script
       pyodbc
       numpy
       pandas
-      opencv-python
-      python-dotenv
-      fastapi
-      uvicorn
-      threadpoolctl
-      joblib
-      scikit-learn
-      scipy
     ]
   );
 
