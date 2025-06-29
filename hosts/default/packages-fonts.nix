@@ -4,13 +4,22 @@
 { pkgs, inputs, ... }:
 let
 
-  python-packages = pkgs.python3.withPackages (
+  python-packages = pkgs.python312.withPackages (
     ps: with ps; [
       requests
       pyquery # needed for hyprland-dots Weather script
       pyodbc
       numpy
       pandas
+      opencv-python
+      python-dotenv
+      fastapi
+      uvicorn
+      threadpoolctl
+      joblib
+      scikit-learn
+      scipy
+      sounddevice
     ]
   );
 
@@ -63,6 +72,8 @@ in
       #unixODBCDrivers.mysql
       unixODBCDrivers.sqlite
       unixODBCDrivers.msodbcsql18
+      portaudio
+      devenv
 
       # Dotnet
       csharpier
