@@ -74,6 +74,7 @@ in
       unixODBCDrivers.msodbcsql18
       portaudio
       devenv
+      signal-desktop
 
       # Dotnet
       csharpier

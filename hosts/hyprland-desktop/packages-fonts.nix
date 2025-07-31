@@ -73,6 +73,7 @@ in
       unixODBCDrivers.sqlite
       unixODBCDrivers.msodbcsql18
       portaudio
+      devenv
 
       # Dotnet
       csharpier
