@@ -78,6 +78,11 @@ in
       moon
       uv
       leiningen
+      clojure
+      clojure-lsp
+      jdk21_headless
+      redis
+      redisinsight
 
       # Dotnet
       csharpier

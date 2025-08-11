@@ -75,6 +75,11 @@ in
       portaudio
       devenv
       signal-desktop
+      moon
+      uv
+      leiningen
+      clojure
+      clojure-lsp
 
       # Dotnet
       csharpier
