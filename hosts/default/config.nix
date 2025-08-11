@@ -281,7 +281,7 @@ in
   hardware.logitech.wireless.enable = false;
   hardware.logitech.wireless.enableGraphical = false;
 
-  hardware.pulseaudio.enable = false; # stable branch
+  services.pulseaudio.enable = false; # stable branch
 
   # Bluetooth
   hardware = {
