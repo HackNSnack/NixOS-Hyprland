@@ -119,25 +119,30 @@ in
   #};
 
   # Extra Module Options
-  drivers.amdgpu.enable = false;
-  drivers.intel.enable = true;
-  drivers.nvidia.enable = false;
-  drivers.nvidia-prime = {
-    enable = false;
-    intelBusID = "";
-    nvidiaBusID = "";
+  drivers = {
+    amdgpu.enable = true;
+    intel.enable = true;
+    nvidia.enable = false;
+    nvidia-prime = {
+      enable = false;
+      intelBusID = "";
+      nvidiaBusID = "";
+    };
   };
   vm.guest-services.enable = false;
   local.hardware-clock.enable = false;
 
   # networking
-  networking.networkmanager.enable = true;
-  networking.hostName = "${host}";
-  networking.timeServers = options.networking.timeServers.default ++ [ "pool.ntp.org" ];
-  networking.extraHosts = ''
-    127.0.0.1 ardoqbundlesproduction.localhost
-    127.0.0.1 piedpiper.localhost,dkellyltd.localhost
-  '';
+  networking = {
+    networkmanager.enable = true;
+    hostName = "${host}";
+    timeServers = options.networking.timeServers.default ++ [ "pool.ntp.org" ];
+    extraHosts = ''
+      127.0.0.1 ardoqbundlesproduction.localhost
+      127.0.0.1 piedpiper.localhost,dkellyltd.localhost
+    '';
+
+  };
 
   # Set your time zone.
   time.timeZone = "Europe/Oslo";
@@ -177,7 +182,6 @@ in
 
     greetd = {
       enable = true;
-      vt = 3;
       settings = {
         default_session = {
           user = username;
@@ -283,8 +287,10 @@ in
   #};
 
   # Extra Logitech Support
-  hardware.logitech.wireless.enable = false;
-  hardware.logitech.wireless.enableGraphical = false;
+  hardware = {
+    logitech.wireless.enable = false;
+    logitech.wireless.enableGraphical = false;
+  };
 
   services.pulseaudio.enable = false; # stable branch
 
@@ -303,24 +309,26 @@ in
   };
 
   # Security / Polkit
-  security.rtkit.enable = true;
-  security.polkit.enable = true;
-  security.polkit.extraConfig = ''
-    polkit.addRule(function(action, subject) {
-      if (
-        subject.isInGroup("users")
-          && (
-            action.id == "org.freedesktop.login1.reboot" ||
-            action.id == "org.freedesktop.login1.reboot-multiple-sessions" ||
-            action.id == "org.freedesktop.login1.power-off" ||
-            action.id == "org.freedesktop.login1.power-off-multiple-sessions"
-          )
-        )
-      {
-        return polkit.Result.YES;
-      }
-    })
-  '';
+  security = {
+    rtkit.enable = true;
+    polkit.enable = true;
+    polkit.extraConfig = ''
+       polkit.addRule(function(action, subject) {
+         if (
+           subject.isInGroup("users")
+             && (
+               action.id == "org.freedesktop.login1.reboot" ||
+               action.id == "org.freedesktop.login1.reboot-multiple-sessions" ||
+               action.id == "org.freedesktop.login1.power-off" ||
+               action.id == "org.freedesktop.login1.power-off-multiple-sessions"
+             )
+           )
+         {
+           return polkit.Result.YES;
+         }
+      })
+    '';
+  };
   security.pam.services.swaylock = {
     text = ''
       auth include login
@@ -363,6 +371,8 @@ in
 
   # For Electron apps to use wayland
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
+  # For Hyprland QT Support
+  environment.sessionVariables.QML_IMPORT_PATH = "${pkgs.hyprland-qt-support}/lib/qt-6/qml";
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ];

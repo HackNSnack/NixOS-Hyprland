@@ -39,6 +39,7 @@ in
       curl
       cpufrequtils
       duf
+      findutils
       ffmpeg
       glib # for gsettings to work
       gsettings-qt
@@ -86,6 +87,51 @@ in
       redis
       redisinsight
       zoom-us
+
+      fastfetch
+      (mpv.override { scripts = [ mpvScripts.mpris ]; }) # with tray
+      #ranger
+
+      # KooL Dots and Hyprland Stuff
+      hyprland-qt-support # for hyprland-qt-support
+      btop
+      brightnessctl # for brightness control
+      cava
+      cliphist
+      loupe
+      gnome-system-monitor
+      grim
+      gtk-engine-murrine # for gtk themes
+      hypridle
+      imagemagick
+      inxi
+      jq
+      kitty
+      libsForQt5.qtstyleplugin-kvantum # kvantum
+      networkmanagerapplet
+      nwg-displays
+      nwg-look
+      nvtopPackages.full
+      pamixer
+      pavucontrol
+      playerctl
+      polkit_gnome
+      libsForQt5.qt5ct
+      kdePackages.qt6ct
+      kdePackages.qtwayland
+      kdePackages.qtstyleplugin-kvantum # kvantum
+      rofi-wayland
+      slurp
+      swappy
+      swaynotificationcenter
+      swww
+      unzip
+      wallust
+      wl-clipboard
+      wlogout
+      xarchiver
+      yad
+      yt-dlp
 
       # Dotnet
       csharpier
@@ -162,20 +208,23 @@ in
       python-packages
     ];
 
-  # FONTS
-  fonts.packages = with pkgs; [
-    noto-fonts
-    fira-code
-    noto-fonts-cjk-sans
-    jetbrains-mono
-    font-awesome
-    terminus_font
-    victor-mono
+  #FONTS
+  fonts = {
+    packages = with pkgs; [
+      noto-fonts
+      fira-code
+      noto-fonts-cjk-sans
+      jetbrains-mono
+      font-awesome
+      terminus_font
+      victor-mono
 
-    nerd-fonts.jetbrains-mono # unstable
-    nerd-fonts.fira-code # unstable
-    nerd-fonts.fantasque-sans-mono # unstable
-  ];
+      nerd-fonts.jetbrains-mono # unstable
+      nerd-fonts.fira-code # unstable
+      nerd-fonts.fantasque-sans-mono # unstable
+    ];
+
+  };
 
   programs = {
     hyprland = {
