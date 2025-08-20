@@ -23,6 +23,7 @@ in
   imports = [
     ./hardware.nix
     ./users.nix
+    ./nixld.nix
     ./packages-fonts.nix
     ../../modules/amd-drivers.nix
     ../../modules/nvidia-drivers.nix
@@ -133,6 +134,10 @@ in
   networking.networkmanager.enable = true;
   networking.hostName = "${host}";
   networking.timeServers = options.networking.timeServers.default ++ [ "pool.ntp.org" ];
+  networking.extraHosts = ''
+    127.0.0.1 ardoqbundlesproduction.localhost
+    127.0.0.1 piedpiper.localhost,dkellyltd.localhost
+  '';
 
   # Set your time zone.
   time.timeZone = "Europe/Oslo";
@@ -346,7 +351,7 @@ in
   virtualisation.podman = {
     enable = false;
     dockerCompat = true;
-    defaultNetwork.settings.dns_enabled = false;
+    defaultNetwork.settings.dns_enabled = true;
   };
 
   # OpenGL
@@ -360,11 +365,20 @@ in
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
   # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
+  # networking.firewall.allowedTCPPorts = [ ];
+  # networking.firewall.allowedUDPPorts = [ ];
   # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
+  networking.firewall = {
+    enable = true;
 
+    # Adding custom iptables rules
+    extraCommands = "
+      iptables -I nixos-fw 1 -i br+ -j ACCEPT
+    ";
+    extraStopCommands = "
+      iptables -D nixos-fw -i br+ -j ACCEPT
+    ";
+  };
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave

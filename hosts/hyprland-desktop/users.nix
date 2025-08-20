@@ -67,7 +67,6 @@ in
 
         # Dev
         vscode
-        pnpm
         nodejs
         gh
 

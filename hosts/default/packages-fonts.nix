@@ -78,11 +78,14 @@ in
       moon
       uv
       leiningen
+      pnpm
       clojure
       clojure-lsp
+      babashka
       jdk21_headless
       redis
       redisinsight
+      zoom-us
 
       # Dotnet
       csharpier
