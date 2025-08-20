@@ -5,13 +5,28 @@
 let
 
   python-packages = pkgs.python312.withPackages (
+<<<<<<< HEAD
     ps:
       with ps; [
         requests
         pyquery # needed for hyprland-dots Weather script
+=======
+    ps: with ps; [
+      requests
+      pyquery # needed for hyprland-dots Weather script
+>>>>>>> 3ed3e39cecfd0a759d0fe7a21549a7cad2b4e63f
       pyodbc
       numpy
       pandas
+      opencv-python
+      python-dotenv
+      fastapi
+      uvicorn
+      threadpoolctl
+      joblib
+      scikit-learn
+      scipy
+      sounddevice
     ]
   );
 
@@ -64,6 +79,20 @@ in
       #unixODBCDrivers.mysql
       unixODBCDrivers.sqlite
       unixODBCDrivers.msodbcsql18
+      portaudio
+      devenv
+      signal-desktop
+      moon
+      uv
+      leiningen
+      pnpm
+      clojure
+      clojure-lsp
+      babashka
+      jdk21_headless
+      redis
+      redisinsight
+      zoom-us
 
       # Dotnet
       csharpier
@@ -149,12 +178,10 @@ in
     font-awesome
     terminus_font
     victor-mono
-    (nerdfonts.override { fonts = [ "JetBrainsMono" ]; }) # stable banch
-    (nerdfonts.override { fonts = [ "FantasqueSansMono" ]; }) # stable banch
 
-    #nerd-fonts.jetbrains-mono # unstable
-    #nerd-fonts.fira-code # unstable
-    #nerd-fonts.fantasque-sans-mono #unstable
+    nerd-fonts.jetbrains-mono # unstable
+    nerd-fonts.fira-code # unstable
+    nerd-fonts.fantasque-sans-mono # unstable
   ];
 
   programs = {

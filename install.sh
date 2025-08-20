@@ -66,19 +66,6 @@ fi
 echo "-----"
 printf "\n%.0s" {1..1}
 
-# Aylurs GTK Shell v1 installation option
-read -p "${CAT} Do you want to add ${MAGENTA}AGS or aylur's gtk shell v1${RESET} for Desktop Overview Like? (Y/n): " answer
-
-answer=${answer:-Y}
-
-if [[ "$answer" =~ ^[Nn]$ ]]; then
-    sed -i 's|^\([[:space:]]*\)ags.url = "github:aylur/ags/v1";|\1#ags.url = "github:aylur/ags/v1";|' flake.nix
-    sed -i 's|^\([[:space:]]*\)ags|\1#ags|' hosts/default/packages-fonts.nix
-fi
-
-echo "-----"
-printf "\n%.0s" {1..1}
-
 echo "$NOTE Default options are in brackets []"
 echo "$NOTE Just press enter to select the default"
 sleep 1
@@ -141,7 +128,7 @@ echo "-----"
 
 echo "$NOTE Setting Required Nix Settings Then Going To Install"
 git config --global user.name "Mathipe98"
-git config --global user.email "mathias.pettersen@proton.me"
+git config --global user.email "56786723+Mathipe98@users.noreply.github.com"
 git add .
 sed -i 's/host\s*=\s*"\([^"]*\)"/host = "'"$hostName"'"/' ./flake.nix
 
