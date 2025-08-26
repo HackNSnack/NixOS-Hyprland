@@ -39,8 +39,6 @@
   networking.useDHCP = lib.mkDefault true;
   # networking.interfaces.br-0f7751aa3d73.useDHCP = lib.mkDefault true;
   # networking.interfaces.docker0.useDHCP = lib.mkDefault true;
-  # networking.interfaces.pvpnksintrf0.useDHCP = lib.mkDefault true;
-  # networking.interfaces.tun0.useDHCP = lib.mkDefault true;
   # networking.interfaces.wlp0s20f3.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";

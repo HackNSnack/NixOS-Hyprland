@@ -26,8 +26,8 @@ in
     ./nixld.nix
     ./packages-fonts.nix
     ../../modules/amd-drivers.nix
-    ../../modules/nvidia-drivers.nix
-    ../../modules/nvidia-prime-drivers.nix
+    #../../modules/nvidia-drivers.nix
+    #../../modules/nvidia-prime-drivers.nix
     ../../modules/intel-drivers.nix
     ../../modules/vm-guest-services.nix
     ../../modules/local-hardware-clock.nix
@@ -120,14 +120,14 @@ in
 
   # Extra Module Options
   drivers = {
-    amdgpu.enable = true;
+    #amdgpu.enable = true;
     intel.enable = true;
-    nvidia.enable = false;
-    nvidia-prime = {
-      enable = false;
-      intelBusID = "";
-      nvidiaBusID = "";
-    };
+    #nvidia.enable = false;
+    #nvidia-prime = {
+    #  enable = false;
+    #  intelBusID = "";
+    #  nvidiaBusID = "";
+    #};
   };
   vm.guest-services.enable = false;
   local.hardware-clock.enable = false;
@@ -375,8 +375,8 @@ in
   environment.sessionVariables.QML_IMPORT_PATH = "${pkgs.hyprland-qt-support}/lib/qt-6/qml";
 
   # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ];
-  # networking.firewall.allowedUDPPorts = [ ];
+  networking.firewall.allowedTCPPorts = [ 80 ];
+  networking.firewall.allowedUDPPorts = [ 80 ];
   # Or disable the firewall altogether.
   networking.firewall = {
     enable = true;
