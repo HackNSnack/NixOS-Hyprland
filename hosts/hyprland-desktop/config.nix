@@ -373,8 +373,8 @@ in
   environment.sessionVariables.QML_IMPORT_PATH = "${pkgs.hyprland-qt-support}/lib/qt-6/qml";
 
   # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ];
-  # networking.firewall.allowedUDPPorts = [ ];
+  networking.firewall.allowedTCPPorts = [ 80 ];
+  networking.firewall.allowedUDPPorts = [ 80 ];
   # Or disable the firewall altogether.
   networking.firewall = {
     enable = true;
@@ -387,6 +387,7 @@ in
       iptables -D nixos-fw -i br+ -j ACCEPT
     ";
   };
+
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
