@@ -20,7 +20,7 @@ in
     ./hardware.nix
     ./users.nix
     ./nixld.nix
-    ./ollama_cuda.nix
+    #./ollama_cuda.nix
     ./packages-fonts.nix
     ../../modules/amd-drivers.nix
     ../../modules/nvidia-drivers.nix
@@ -382,10 +382,6 @@ in
     extraStopCommands = "
       iptables -D nixos-fw -i br+ -j ACCEPT
     ";
-    trustedInterfaces = [
-      "br-159c23f886c4"
-      "docker0"
-    ];
   };
 
   # This value determines the NixOS release from which the default

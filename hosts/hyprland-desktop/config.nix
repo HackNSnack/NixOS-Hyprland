@@ -4,14 +4,10 @@
 # NOTE!!! : Packages and Fonts are configured in packages-&-fonts.nix
 
 {
-  config,
   pkgs,
   host,
   username,
   options,
-  lib,
-  inputs,
-  system,
   ...
 }:
 let
@@ -24,7 +20,7 @@ in
     ./hardware.nix
     ./users.nix
     ./nixld.nix
-    ./ollama_cuda.nix
+    #./ollama_cuda.nix
     ./packages-fonts.nix
     ../../modules/amd-drivers.nix
     ../../modules/nvidia-drivers.nix
