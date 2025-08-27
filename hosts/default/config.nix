@@ -4,14 +4,10 @@
 # NOTE!!! : Packages and Fonts are configured in packages-&-fonts.nix
 
 {
-  config,
   pkgs,
   host,
   username,
   options,
-  lib,
-  inputs,
-  system,
   ...
 }:
 let
@@ -386,6 +382,10 @@ in
     extraStopCommands = "
       iptables -D nixos-fw -i br+ -j ACCEPT
     ";
+    trustedInterfaces = [
+      "br-159c23f886c4"
+      "docker0"
+    ];
   };
 
   # This value determines the NixOS release from which the default
