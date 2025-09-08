@@ -368,13 +368,11 @@ in
   # For Hyprland QT Support
   environment.sessionVariables.QML_IMPORT_PATH = "${pkgs.hyprland-qt-support}/lib/qt-6/qml";
 
-  # Open ports in the firewall.
-  networking.firewall.allowedTCPPorts = [ 80 ];
-  networking.firewall.allowedUDPPorts = [ 80 ];
-  # Or disable the firewall altogether.
   networking.firewall = {
     enable = true;
-
+    trustedInterfaces = [ ];
+    allowedTCPPorts = [ 80 ];
+    allowedUDPPorts = [ 80 ];
     # Adding custom iptables rules
     extraCommands = "
       iptables -I nixos-fw 1 -i br+ -j ACCEPT
