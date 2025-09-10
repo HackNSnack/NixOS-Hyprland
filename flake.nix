@@ -22,11 +22,12 @@
       host = "hyprland-desktop";
       username = "mathipe";
 
-      pkgs = import nixpkgs {
-        inherit system;
-        config = {
-          allowUnfree = true;
-        };
+    pkgs = import nixpkgs {
+       	inherit system;
+       	config = {
+       	  allowUnfree = true;
+          cudaSupport = true;
+       	};
       };
     in
     {

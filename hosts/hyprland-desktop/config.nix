@@ -4,14 +4,10 @@
 # NOTE!!! : Packages and Fonts are configured in packages-&-fonts.nix
 
 {
-  config,
   pkgs,
   host,
   username,
   options,
-  lib,
-  inputs,
-  system,
   ...
 }:
 let
@@ -24,6 +20,7 @@ in
     ./hardware.nix
     ./users.nix
     ./nixld.nix
+    #./ollama_cuda.nix
     ./packages-fonts.nix
     ../../modules/amd-drivers.nix
     #../../modules/nvidia-drivers.nix
@@ -120,7 +117,6 @@ in
 
   # Extra Module Options
   drivers = {
-    #amdgpu.enable = true;
     intel.enable = true;
     #nvidia.enable = false;
     #nvidia-prime = {
@@ -170,10 +166,7 @@ in
   services = {
     xserver = {
       enable = true;
-      videoDrivers = [
-        "modesetting"
-        "displaylink"
-      ];
+      videoDrivers = [ "nvidia" ];
       xkb = {
         layout = "${keyboardLayout}";
         variant = "";
@@ -374,13 +367,11 @@ in
   # For Hyprland QT Support
   environment.sessionVariables.QML_IMPORT_PATH = "${pkgs.hyprland-qt-support}/lib/qt-6/qml";
 
-  # Open ports in the firewall.
-  networking.firewall.allowedTCPPorts = [ 80 ];
-  networking.firewall.allowedUDPPorts = [ 80 ];
-  # Or disable the firewall altogether.
   networking.firewall = {
     enable = true;
-
+    trustedInterfaces = [ ];
+    allowedTCPPorts = [ 80 ];
+    allowedUDPPorts = [ 80 ];
     # Adding custom iptables rules
     extraCommands = "
       iptables -I nixos-fw 1 -i br+ -j ACCEPT
@@ -389,6 +380,7 @@ in
       iptables -D nixos-fw -i br+ -j ACCEPT
     ";
   };
+
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
