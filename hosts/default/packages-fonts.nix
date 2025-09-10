@@ -87,6 +87,7 @@ in
       redis
       redisinsight
       zoom-us
+      claude-code
 
       fastfetch
       (mpv.override { scripts = [ mpvScripts.mpris ]; }) # with tray
