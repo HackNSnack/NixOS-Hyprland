@@ -50,13 +50,17 @@ in
     initrd = {
       availableKernelModules = [
         "xhci_pci"
+        "xhci_hcd"
         "ahci"
         "nvme"
         "usb_storage"
         "usbhid"
         "sd_mod"
+        "sr_mod"
+        "evdev"
       ];
       kernelModules = [ ];
+      systemd.enable = true;
     };
 
     # Needed For Some Steam Games
@@ -167,7 +171,10 @@ in
   services = {
     xserver = {
       enable = true;
-      videoDrivers = [ "nvidia" ];
+      videoDrivers = [
+        "modesetting"
+        "displaylink"
+      ];
       xkb = {
         layout = "${keyboardLayout}";
         variant = "";
@@ -201,7 +208,16 @@ in
     };
 
     #pulseaudio.enable = false; #unstable
-    udev.enable = true;
+    udev = {
+      enable = true;
+      packages = with pkgs; [
+        qmk
+        qmk-udev-rules # the only relevant
+        qmk_hid
+        via
+        vial
+      ];
+    };
     envfs.enable = true;
     dbus.enable = true;
 
