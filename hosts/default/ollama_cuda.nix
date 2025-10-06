@@ -12,6 +12,9 @@
     cudaPackages.cudatoolkit
     cudaPackages.cudnn
     cudaPackages.cuda_cudart
+    cudaPackages.cuda_nvcc
+    cudaPackages.cuda_cccl
+    linuxPackages.nvidia_x11
   ];
 
   # Expose web-portal for Ollama at localhost:8080
@@ -30,11 +33,11 @@
   };
 
   services.ollama = {
-    enable = true;
-    acceleration = "cuda";
-    environmentVariables = {
-      CUDA_VISIBLE_DEVICES = "0";
-      NVIDIA_VISIBLE_DEVICES = "all";
-    };
+    #enable = true;
+    #acceleration = "cuda";
+    #environmentVariables = {
+    #  CUDA_VISIBLE_DEVICES = "0";
+    #  NVIDIA_VISIBLE_DEVICES = "all";
+    #};
   };
 }

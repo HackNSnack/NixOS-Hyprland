@@ -20,7 +20,7 @@ in
     ./hardware.nix
     ./users.nix
     ./nixld.nix
-    #./ollama_cuda.nix
+    ./ollama_cuda.nix
     ./packages-fonts.nix
     ../../modules/amd-drivers.nix
     ../../modules/nvidia-drivers.nix

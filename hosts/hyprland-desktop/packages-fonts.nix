@@ -4,7 +4,7 @@
 { pkgs, inputs, ... }:
 let
 
-  python-packages = pkgs.python312.withPackages (
+  python-packages = pkgs.python313.withPackages (
     ps: with ps; [
       requests
       pyquery # needed for hyprland-dots Weather script
@@ -20,14 +20,20 @@ let
       scikit-learn
       scipy
       sounddevice
+      #torch-bin
+      #torchvision
+      #torchaudio
     ]
   );
 
 in
 {
 
-  nixpkgs.config.allowUnfree = true;
-  nixpkgs.config.allowUnsupportedSystem = true;
+  nixpkgs.config = {
+    allowUnfree = true;
+    allowUnsupportedSystem = true;
+    cudaSupport = true;
+  };
 
   environment.systemPackages =
     (with pkgs; [
@@ -56,11 +62,11 @@ in
       xdg-utils
       gnumake
       go
-      inputs.fix-python.packages.${pkgs.system}.default
+      #inputs.fix-python.packages.${pkgs.system}.default
       #fix-python
       xorg.libSM
       xorg.libXext
-      opencv
+      #opencv
       libuuid
       mysql84
       llm-ls

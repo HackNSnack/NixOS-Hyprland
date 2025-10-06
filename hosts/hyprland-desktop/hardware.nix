@@ -18,16 +18,16 @@
       fsType = "ext4";
     };
 
-  fileSystems."/bin" =
-    { device = "/usr/bin";
-      fsType = "none";
-      options = [ "bind" ];
-    };
-
   fileSystems."/boot" =
     { device = "/dev/disk/by-uuid/8EFB-0C94";
       fsType = "vfat";
       options = [ "fmask=0077" "dmask=0077" ];
+    };
+
+  fileSystems."/bin" =
+    { device = "/usr/bin";
+      fsType = "none";
+      options = [ "bind" ];
     };
 
   swapDevices = [ ];
