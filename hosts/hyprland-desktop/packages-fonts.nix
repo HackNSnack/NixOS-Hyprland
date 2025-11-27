@@ -31,6 +31,8 @@ in
 
   environment.systemPackages =
     (with pkgs; [
+      # Antivirus
+      clamav
       # System Packages
       bc
       baobab
@@ -89,6 +91,12 @@ in
       redisinsight
       zoom-us
       claude-code
+      (yazi.override {
+		_7zz = _7zz-rar;  # Support for RAR extraction
+	  })
+      cloudflare-warp
+      gemini-cli
+      google-cloud-sdk
 
       fastfetch
       (mpv.override { scripts = [ mpvScripts.mpris ]; }) # with tray

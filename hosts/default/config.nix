@@ -138,10 +138,10 @@ in
     networkmanager.enable = true;
     hostName = "${host}";
     timeServers = options.networking.timeServers.default ++ [ "pool.ntp.org" ];
-    extraHosts = ''
-      127.0.0.1 ardoqbundlesproduction.localhost
-      127.0.0.1 piedpiper.localhost,dkellyltd.localhost
-    '';
+    hosts = { 
+      "127.0.0.1" = ["ardoqbundlesproduction.localhost" "piedpiper.localhost" "dkellyltd.localhost"];
+      "10.0.3.180" = ["llm-gateway.hq.ardoq" "llm-gateway.hq.ardoq.dev"];
+    };
 
   };
 
@@ -169,6 +169,11 @@ in
 
   # Services to start
   services = {
+    # Antivirus
+    clamav = {
+      daemon.enable = true;
+      updater.enable = true;
+    };
     xserver = {
       enable = true;
       videoDrivers = [
@@ -258,6 +263,7 @@ in
       openFirewall = true;
     };
 
+    cloudflare-warp.enable = true;
     #ipp-usb.enable = true;
 
     #syncthing = {
