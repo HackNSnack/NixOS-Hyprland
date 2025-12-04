@@ -11,7 +11,7 @@ let
       pyodbc
       numpy
       pandas
-      opencv-python
+      #opencv-python
       python-dotenv
       fastapi
       uvicorn
@@ -21,8 +21,8 @@ let
       scipy
       sounddevice
       #torch-bin
-      #torchvision
-      #torchaudio
+      torchvision
+      torchaudio
     ]
   );
 
@@ -95,6 +95,7 @@ in
       redisinsight
       zoom-us
       claude-code
+      nvidia-container-toolkit
 
       fastfetch
       (mpv.override { scripts = [ mpvScripts.mpris ]; }) # with tray
