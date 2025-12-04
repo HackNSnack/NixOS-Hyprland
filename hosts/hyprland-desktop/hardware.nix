@@ -8,14 +8,20 @@
     [ (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
-  boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "nvme" "usbhid" ];
+  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "usbhid" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-intel" ];
+  boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/4fcbc560-f9aa-41ae-b560-ddd66acfaefc";
+    { device = "/dev/disk/by-uuid/de4662b9-4f34-4440-ba03-1c5318f51afb";
       fsType = "ext4";
+    };
+
+  fileSystems."/boot" =
+    { device = "/dev/disk/by-uuid/8EFB-0C94";
+      fsType = "vfat";
+      options = [ "fmask=0077" "dmask=0077" ];
     };
 
   fileSystems."/bin" =
@@ -24,23 +30,23 @@
       options = [ "bind" ];
     };
 
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/1626-0887";
-      fsType = "vfat";
-      options = [ "fmask=0077" "dmask=0077" ];
+  fileSystems."/var/lib/docker/overlay2/2b7f8ef94f99e79b56bf591b3a267fa25724f3822d9d36f154750cdc5e6e6b14/merged" =
+    { device = "overlay";
+      fsType = "overlay";
+    };
+
+  fileSystems."/var/lib/docker/overlay2/a0cf1e71caf7dbb1fc8cc0e62f9aca77a380ecca43cd598a8e0d8e16162254ba/merged" =
+    { device = "overlay";
+      fsType = "overlay";
+    };
+
+  fileSystems."/var/lib/docker/overlay2/fa1b7731a9ea437149d533bc6db7b1f1bb36a86777c53adf8011d129e7d41257/merged" =
+    { device = "overlay";
+      fsType = "overlay";
     };
 
   swapDevices = [ ];
 
-  # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
-  # (the default) this is the recommended approach. When using systemd-networkd it's
-  # still possible to use this option, but it's recommended to use it in conjunction
-  # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
-  networking.useDHCP = lib.mkDefault true;
-  # networking.interfaces.br-610bab4e4e18.useDHCP = lib.mkDefault true;
-  # networking.interfaces.docker0.useDHCP = lib.mkDefault true;
-  # networking.interfaces.wlp0s20f3.useDHCP = lib.mkDefault true;
-
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }

@@ -23,8 +23,8 @@ in
     ./ollama_cuda.nix
     ./packages-fonts.nix
     ../../modules/amd-drivers.nix
-    #../../modules/nvidia-drivers.nix
-    #../../modules/nvidia-prime-drivers.nix
+    ../../modules/nvidia-drivers.nix
+    ../../modules/nvidia-prime-drivers.nix
     ../../modules/intel-drivers.nix
     ../../modules/vm-guest-services.nix
     ../../modules/local-hardware-clock.nix
@@ -121,14 +121,14 @@ in
 
   # Extra Module Options
   drivers = {
-    #amdgpu.enable = true;
-    intel.enable = true;
-    #nvidia.enable = false;
-    #nvidia-prime = {
-    #  enable = false;
-    #  intelBusID = "";
-    #  nvidiaBusID = "";
-    #};
+    amdgpu.enable = false;
+    intel.enable = false;
+    nvidia.enable = true;
+    nvidia-prime = {
+      enable = false;
+      intelBusID = "";
+      nvidiaBusID = "";
+    };
   };
   vm.guest-services.enable = false;
   local.hardware-clock.enable = false;
@@ -184,8 +184,7 @@ in
     xserver = {
       enable = true;
       videoDrivers = [
-        "modesetting"
-        "displaylink"
+        "nvidia"
       ];
       xkb = {
         layout = "${keyboardLayout}";

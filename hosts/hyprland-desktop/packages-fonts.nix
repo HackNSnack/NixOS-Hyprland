@@ -104,6 +104,7 @@ in
       cloudflare-warp
       gemini-cli
       google-cloud-sdk
+      prettierd
 
       fastfetch
       (mpv.override { scripts = [ mpvScripts.mpris ]; }) # with tray

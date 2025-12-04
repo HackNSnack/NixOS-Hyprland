@@ -55,7 +55,7 @@ in
       killall
       libappindicator
       libnotify
-      #xfce.xfce4-notifyd
+      xfce.xfce4-notifyd
       openssl # required by Rainbow borders
       pciutils
       vim
