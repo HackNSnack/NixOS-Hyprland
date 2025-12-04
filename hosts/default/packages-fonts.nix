@@ -37,6 +37,8 @@ in
 
   environment.systemPackages =
     (with pkgs; [
+      # Antivirus
+      clamav
       # System Packages
       bc
       baobab
@@ -53,7 +55,7 @@ in
       killall
       libappindicator
       libnotify
-      xfce.xfce4-notifyd
+      #xfce.xfce4-notifyd
       openssl # required by Rainbow borders
       pciutils
       vim
@@ -96,6 +98,13 @@ in
       zoom-us
       claude-code
       nvidia-container-toolkit
+      (yazi.override {
+        _7zz = _7zz-rar; # Support for RAR extraction
+      })
+      cloudflare-warp
+      gemini-cli
+      google-cloud-sdk
+      prettierd
 
       fastfetch
       (mpv.override { scripts = [ mpvScripts.mpris ]; }) # with tray

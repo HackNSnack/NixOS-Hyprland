@@ -23,8 +23,8 @@ in
     ./ollama_cuda.nix
     ./packages-fonts.nix
     ../../modules/amd-drivers.nix
-    ../../modules/nvidia-drivers.nix
-    ../../modules/nvidia-prime-drivers.nix
+    #../../modules/nvidia-drivers.nix
+    #../../modules/nvidia-prime-drivers.nix
     ../../modules/intel-drivers.nix
     ../../modules/vm-guest-services.nix
     ../../modules/local-hardware-clock.nix
@@ -121,14 +121,14 @@ in
 
   # Extra Module Options
   drivers = {
-    amdgpu.enable = true;
+    #amdgpu.enable = true;
     intel.enable = true;
-    nvidia.enable = true;
-    nvidia-prime = {
-      enable = false;
-      intelBusID = "";
-      nvidiaBusID = "";
-    };
+    #nvidia.enable = false;
+    #nvidia-prime = {
+    #  enable = false;
+    #  intelBusID = "";
+    #  nvidiaBusID = "";
+    #};
   };
   vm.guest-services.enable = false;
   local.hardware-clock.enable = false;
@@ -138,10 +138,17 @@ in
     networkmanager.enable = true;
     hostName = "${host}";
     timeServers = options.networking.timeServers.default ++ [ "pool.ntp.org" ];
-    extraHosts = ''
-      127.0.0.1 ardoqbundlesproduction.localhost
-      127.0.0.1 piedpiper.localhost,dkellyltd.localhost
-    '';
+    hosts = {
+      "127.0.0.1" = [
+        "ardoqbundlesproduction.localhost"
+        "piedpiper.localhost"
+        "dkellyltd.localhost"
+      ];
+      "10.0.3.180" = [
+        "llm-gateway.hq.ardoq"
+        "llm-gateway.hq.ardoq.dev"
+      ];
+    };
 
   };
 
@@ -169,9 +176,17 @@ in
 
   # Services to start
   services = {
+    # Antivirus
+    clamav = {
+      daemon.enable = true;
+      updater.enable = true;
+    };
     xserver = {
       enable = true;
-      videoDrivers = [ "nvidia" ];
+      videoDrivers = [
+        "modesetting"
+        "displaylink"
+      ];
       xkb = {
         layout = "${keyboardLayout}";
         variant = "";
@@ -215,7 +230,6 @@ in
         vial
       ];
     };
-
     envfs.enable = true;
     dbus.enable = true;
 
@@ -256,6 +270,7 @@ in
       openFirewall = true;
     };
 
+    cloudflare-warp.enable = true;
     #ipp-usb.enable = true;
 
     #syncthing = {
