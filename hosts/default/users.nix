@@ -51,7 +51,7 @@ in
         obsidian
 
         # Microsoft
-        whatsapp-for-linux
+        #whatsapp-for-linux
         teams-for-linux
         azuredatastudio
 

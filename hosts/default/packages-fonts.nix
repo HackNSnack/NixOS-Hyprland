@@ -11,7 +11,7 @@ let
       pyodbc
       numpy
       pandas
-      opencv-python
+      #opencv-python
       python-dotenv
       fastapi
       uvicorn
@@ -27,7 +27,7 @@ in
 {
 
   nixpkgs.config.allowUnfree = true;
-  nixpkgs.config.allowUnsupportedSystem = true;
+  nixpkgs.config.allowUnsupportedSystem = false;
 
   environment.systemPackages =
     (with pkgs; [
@@ -62,7 +62,6 @@ in
       #fix-python
       xorg.libSM
       xorg.libXext
-      opencv
       libuuid
       mysql84
       llm-ls
@@ -102,47 +101,6 @@ in
       (mpv.override { scripts = [ mpvScripts.mpris ]; }) # with tray
       #ranger
 
-      # KooL Dots and Hyprland Stuff
-      hyprland-qt-support # for hyprland-qt-support
-      btop
-      brightnessctl # for brightness control
-      cava
-      cliphist
-      loupe
-      gnome-system-monitor
-      grim
-      gtk-engine-murrine # for gtk themes
-      hypridle
-      imagemagick
-      inxi
-      jq
-      kitty
-      libsForQt5.qtstyleplugin-kvantum # kvantum
-      networkmanagerapplet
-      nwg-displays
-      nwg-look
-      nvtopPackages.full
-      pamixer
-      pavucontrol
-      playerctl
-      polkit_gnome
-      libsForQt5.qt5ct
-      kdePackages.qt6ct
-      kdePackages.qtwayland
-      kdePackages.qtstyleplugin-kvantum # kvantum
-      rofi-wayland
-      slurp
-      swappy
-      swaynotificationcenter
-      swww
-      unzip
-      wallust
-      wl-clipboard
-      wlogout
-      xarchiver
-      yad
-      yt-dlp
-
       # Dotnet
       csharpier
       (
@@ -169,12 +127,11 @@ in
       #ranger
 
       # Hyprland Stuff
-      #(ags.overrideAttrs (oldAttrs: { inherit (oldAttrs) pname; version = "1.8.2"; }))
       ags # desktop overview
+      hyprland-qt-support # for hyprland-qt-support
       btop
       brightnessctl # for brightness control
       cava
-      cavalier
       cliphist
       loupe
       gnome-system-monitor
@@ -184,6 +141,7 @@ in
       imagemagick
       inxi
       jq
+      cavalier
       kitty
       libsForQt5.qtstyleplugin-kvantum # kvantum
       networkmanagerapplet
@@ -198,7 +156,7 @@ in
       kdePackages.qt6ct
       kdePackages.qtwayland
       kdePackages.qtstyleplugin-kvantum # kvantum
-      rofi-wayland
+      rofi
       slurp
       swappy
       swaynotificationcenter
@@ -235,14 +193,6 @@ in
   };
 
   programs = {
-    hyprland = {
-      enable = true;
-      #package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland; #hyprland-git
-      #portalPackage = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland; #xdph-git
-
-      portalPackage = pkgs.xdg-desktop-portal-hyprland; # xdph none git
-      xwayland.enable = true;
-    };
 
     wireshark = {
       enable = true;
@@ -256,19 +206,6 @@ in
     #  remotePlay.openFirewall = true;
     #  dedicatedServer.openFirewall = true;
     #};
-  };
-
-  # Extra Portal Configuration
-  xdg.portal = {
-    enable = true;
-    wlr.enable = false;
-    extraPortals = [
-      pkgs.xdg-desktop-portal-gtk
-    ];
-    configPackages = [
-      pkgs.xdg-desktop-portal-gtk
-      pkgs.xdg-desktop-portal
-    ];
   };
 
   programs = {
