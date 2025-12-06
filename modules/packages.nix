@@ -1,7 +1,8 @@
-{ pkgs
-, inputs
-, host
-, ...
+{
+  pkgs,
+  inputs,
+  host,
+  ...
 }:
 {
 
@@ -17,7 +18,7 @@
     };
     zsh.enable = true;
     firefox.enable = false;
-    waybar.enable = false; #started by Hyprland dotfiles. Enabling causes two waybars
+    waybar.enable = false; # started by Hyprland dotfiles. Enabling causes two waybars
     hyprlock.enable = true;
     dconf.enable = true;
     seahorse.enable = true;
@@ -32,7 +33,7 @@
     nm-applet.indicator = true;
     neovim = {
       enable = true;
-      defaultEditor = false;
+      defaultEditor = true;
     };
 
     thunar.enable = true;
@@ -46,6 +47,7 @@
 
   };
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.cudaSupport = true;
 
   environment.systemPackages = with pkgs; [
 
@@ -158,7 +160,7 @@
     rofi
     slurp
     swappy
-    serie #git cli tool 
+    serie # git cli tool
     swaynotificationcenter
     swww
     unzip
@@ -177,18 +179,18 @@
     (inputs.ags.packages.${pkgs.stdenv.hostPlatform.system}.default)
 
     # Utils
-    #browsr # file browser   # Fails python build 11/14/2025 
+    #browsr # file browser   # Fails python build 11/14/2025
     ctop # container top
     erdtree # great tree util run: erd
     frogmouth # cli markdown renderer A
-    lstr # another tree util 
+    lstr # another tree util
     lolcat
     lsd # ls replacement util
     macchina # fetch tool
-    mcat # show images in terminal 
+    mcat # show images in terminal
     mdcat # Markdown tool
     parallel-disk-usage # fast disk space tool run: pdu
-    pik # Interactive process killer 
+    pik # Interactive process killer
     oh-my-posh
     ncdu # disk usage tool
     ncftp
@@ -212,8 +214,8 @@
     cpufetch
     cpuid
     cpu-x
-    cyme #list USB devices - very handy
-    gdu # Dusk usage 
+    cyme # list USB devices - very handy
+    gdu # Dusk usage
     glances # system monitor tool
     gping # Graphical ping tool
     htop # system monitor tool

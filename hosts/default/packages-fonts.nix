@@ -211,8 +211,6 @@ in
       yad
       yt-dlp
 
-      #waybar  # if wanted experimental next line
-      #(pkgs.waybar.overrideAttrs (oldAttrs: { mesonFlags = oldAttrs.mesonFlags ++ [ "-Dexperimental=true" ];}))
     ])
     ++ [
       python-packages
@@ -246,27 +244,9 @@ in
       xwayland.enable = true;
     };
 
-    waybar.enable = true;
     wireshark = {
       enable = true;
-      #usbmon.enable = true;
     };
-    hyprlock.enable = true;
-    firefox.enable = true;
-    git.enable = true;
-    nm-applet.indicator = true;
-    neovim = {
-      enable = true;
-      defaultEditor = true;
-    };
-    thunar.enable = true;
-    thunar.plugins = with pkgs.xfce; [
-      exo
-      mousepad
-      thunar-archive-plugin
-      thunar-volman
-      tumbler
-    ];
 
     virt-manager.enable = false;
 
@@ -276,18 +256,6 @@ in
     #  remotePlay.openFirewall = true;
     #  dedicatedServer.openFirewall = true;
     #};
-
-    xwayland.enable = true;
-
-    dconf.enable = true;
-    seahorse.enable = true;
-    fuse.userAllowOther = true;
-    mtr.enable = true;
-    gnupg.agent = {
-      enable = true;
-      enableSSHSupport = true;
-    };
-
   };
 
   # Extra Portal Configuration

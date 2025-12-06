@@ -122,12 +122,12 @@ in
   drivers = {
     #amdgpu.enable = true;
     intel.enable = true;
-    nvidia.enable = false;
-    nvidia-prime = {
-      enable = false;
-      intelBusID = "";
-      nvidiaBusID = "";
-    };
+    # nvidia.enable = false;
+    # nvidia-prime = {
+    #   enable = false;
+    #   intelBusID = "";
+    #   nvidiaBusID = "";
+    # };
   };
   vm.guest-services.enable = false;
   local.hardware-clock.enable = false;

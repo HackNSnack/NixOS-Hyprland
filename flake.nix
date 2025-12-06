@@ -8,7 +8,6 @@
     fix-python.url = "github:GuillaumeDesforges/fix-python";
     #hyprland.url = "github:hyprwm/Hyprland"; # hyprland development
     #distro-grub-themes.url = "github:AdisonCavani/distro-grub-themes";
-    ags.url = "github:aylur/ags/v1"; # aylurs-gtk-shell-v1
     home-manager.url = "github:nix-community/home-manager/release-25.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     nixvim.url = "github:nix-community/nixvim/nixos-25.11";
@@ -41,10 +40,6 @@
 
       pkgs = import nixpkgs {
         inherit system;
-        config = {
-          allowUnfree = true;
-          cudaSupport = true;
-        };
       };
     in
     {

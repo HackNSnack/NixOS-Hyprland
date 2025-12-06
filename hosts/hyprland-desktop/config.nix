@@ -2,7 +2,6 @@
 # Main default config
 
 # NOTE!!! : Packages and Fonts are configured in packages-&-fonts.nix
-
 {
   pkgs,
   host,
@@ -123,12 +122,12 @@ in
   drivers = {
     #amdgpu.enable = true;
     intel.enable = true;
-    #nvidia.enable = false;
-    #nvidia-prime = {
-    #  enable = false;
-    #  intelBusID = "";
-    #  nvidiaBusID = "";
-    #};
+    # nvidia.enable = false;
+    # nvidia-prime = {
+    #   enable = false;
+    #   intelBusID = "";
+    #   nvidiaBusID = "";
+    # };
   };
   vm.guest-services.enable = false;
   local.hardware-clock.enable = false;
@@ -138,19 +137,24 @@ in
     networkmanager.enable = true;
     hostName = "${host}";
     timeServers = options.networking.timeServers.default ++ [ "pool.ntp.org" ];
-    hosts = { 
-      "127.0.0.1" = ["ardoqbundlesproduction.localhost" "piedpiper.localhost" "dkellyltd.localhost"];
-      "10.0.3.180" = ["llm-gateway.hq.ardoq" "llm-gateway.hq.ardoq.dev"];
+    hosts = {
+      "127.0.0.1" = [
+        "ardoqbundlesproduction.localhost"
+        "piedpiper.localhost"
+        "dkellyltd.localhost"
+      ];
+      "10.0.3.180" = [
+        "llm-gateway.hq.ardoq"
+        "llm-gateway.hq.ardoq.dev"
+      ];
     };
 
   };
 
   # Set your time zone.
-  time.timeZone = "Europe/Oslo";
   #services.automatic-timezoned.enable = true; #based on IP location
 
   #https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-  #time.timeZone = "Asia/Seoul"; # Set local timezone
 
   # Select internationalisation properties.
   i18n.defaultLocale = "en_GB.UTF-8";
@@ -233,11 +237,11 @@ in
 
     libinput.enable = true;
 
-    rpcbind.enable = false;
-    nfs.server.enable = false;
+    rpcbind.enable = true;
+    nfs.server.enable = true;
 
     openssh.enable = true;
-    flatpak.enable = false;
+    flatpak.enable = true;
 
     blueman.enable = true;
 
@@ -383,7 +387,7 @@ in
     enable = true;
   };
 
-  console.keyMap = "${keyboardLayout}";
+  console.keyMap = "no";
 
   # For Electron apps to use wayland
   environment.sessionVariables.NIXOS_OZONE_WL = "1";

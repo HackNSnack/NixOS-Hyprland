@@ -1,5 +1,5 @@
 # 💫 https://github.com/JaKooLit 💫 #
-# Packages and Fonts config including the "programs" options
+# Packages for this host only
 
 { pkgs, inputs, ... }:
 let
@@ -92,8 +92,8 @@ in
       zoom-us
       claude-code
       (yazi.override {
-		_7zz = _7zz-rar;  # Support for RAR extraction
-	  })
+        _7zz = _7zz-rar; # Support for RAR extraction
+      })
       cloudflare-warp
       gemini-cli
       google-cloud-sdk
@@ -303,4 +303,14 @@ in
     ];
   };
 
+  programs = {
+
+    steam = {
+      enable = false;
+      gamescopeSession.enable = false;
+      remotePlay.openFirewall = false;
+      dedicatedServer.openFirewall = false;
+    };
+
+  };
 }

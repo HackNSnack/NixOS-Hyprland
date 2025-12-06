@@ -67,6 +67,7 @@ if command -v lspci >/dev/null 2>&1; then
         echo "${NOTE} Nvidia GPU detected. Setting up for nvidia..."
         sed -i '/drivers\.nvidia\.enable = false;/s/drivers\.nvidia\.enable = false;/ drivers.nvidia.enable = true;/' hosts/default/config.nix
     fi
+fi
 
 # Check for pciutils (lspci)
 if ! command -v lspci >/dev/null 2>&1; then
@@ -288,4 +289,3 @@ else
     # Print error message if Hyprland is not installed
     printf "\n${WARN} Hyprland failed to install. Please check Install-Logs...${RESET}\n\n"
     exit 1
-fi
