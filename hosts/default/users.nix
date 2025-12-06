@@ -88,12 +88,19 @@ in
   environment.systemPackages = with pkgs; [
     lsd
     fzf
+    git
   ];
 
   programs = {
     # Zsh configuration
     # NB: This probably doesn't matter since I copy my own .zshrc
     zsh = {
+      ohMyZsh = {
+        enable = true;
+        #theme = "agnoster";
+        plugins = [ "git" ];
+      };
+
       enable = true;
       enableCompletion = true;
 

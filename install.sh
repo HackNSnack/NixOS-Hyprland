@@ -30,6 +30,12 @@ RESET="$(tput sgr0)"
 
 set -e
 
+# Common installer functions
+if [ -f "scripts/lib/install-common.sh" ]; then
+    # shellcheck source=/dev/null
+    . "scripts/lib/install-common.sh"
+fi
+
 if [ -n "$(grep -i nixos </etc/os-release)" ]; then
     echo "$OK Verified this is NixOS."
     echo "-----"
@@ -61,6 +67,12 @@ if command -v lspci >/dev/null 2>&1; then
         echo "${NOTE} Nvidia GPU detected. Setting up for nvidia..."
         sed -i '/drivers\.nvidia\.enable = false;/s/drivers\.nvidia\.enable = false;/ drivers.nvidia.enable = true;/' hosts/default/config.nix
     fi
+
+# Check for pciutils (lspci)
+if ! command -v lspci >/dev/null 2>&1; then
+    echo "$ERROR pciutils is not installed. Please install pciutils and try again."
+    echo "Example: nix-shell -p pciutils"
+    exit 1
 fi
 
 echo "-----"
@@ -72,7 +84,8 @@ sleep 1
 
 echo "-----"
 
-read -rp "$CAT Enter Your New Hostname: [ hyprland-desktop ] " hostName
+# Read from the controlling TTY to ensure interactivity even if stdin is redirected
+read -rp "$CAT Enter Your New Hostname: [ hyprland-desktop ] " hostName </dev/tty
 if [ -z "$hostName" ]; then
     hostName="hyprland-desktop"
 fi
@@ -87,6 +100,7 @@ if [ "$hostName" != "default" ]; then
 else
     echo "Default hostname selected, no extra hosts directory created."
 fi
+
 echo "-----"
 
 read -rp "$CAT Enter your keyboard layout: [ no ] " keyboardLayout
@@ -94,7 +108,18 @@ if [ -z "$keyboardLayout" ]; then
     keyboardLayout="no"
 fi
 
+# GPU/VM detection and toggles (operate on selected host)
+if type nhl_detect_gpu_and_toggle >/dev/null 2>&1; then
+    nhl_detect_gpu_and_toggle "$hostName"
+fi
+echo "-----"
+
 sed -i 's/keyboardLayout\s*=\s*"\([^"]*\)"/keyboardLayout = "'"$keyboardLayout"'"/' ./hosts/$hostName/variables.nix
+
+# Timezone and console keymap
+if type nhl_prompt_timezone_console >/dev/null 2>&1; then
+    nhl_prompt_timezone_console "$hostName" "$keyboardLayout"
+fi
 
 echo "-----"
 
@@ -130,7 +155,11 @@ echo "$NOTE Setting Required Nix Settings Then Going To Install"
 git config --global user.name "Mathipe98"
 git config --global user.email "56786723+Mathipe98@users.noreply.github.com"
 git add .
-sed -i 's/host\s*=\s*"\([^"]*\)"/host = "'"$hostName"'"/' ./flake.nix
+# Update host in flake.nix (first occurrence of host = "...")
+sed -i -E '0,/(^\s*host\s*=\s*")([^"]*)(";)/s//\1'"$hostName"'\3/' ./flake.nix
+# Verify
+echo "$OK Hostname updated in flake.nix:"
+grep -E "^[[:space:]]*host[[:space:]]*=" ./flake.nix | head -1 || true
 
 printf "\n%.0s" {1..2}
 
@@ -243,8 +272,7 @@ printf "\n%.0s" {1..2}
 if command -v Hyprland &>/dev/null; then
     printf "\n${OK} Yey! Installation Completed.${RESET}\n"
     sleep 2
-    printf "\n${NOTE} You can start Hyprland by typing Hyprland (note the capital H!).${RESET}\n"
-    printf "\n${NOTE} It is highly recommended to reboot your system.${RESET}\n\n"
+    printf "\n${NOTE} You must reboot your system to finish the installation.${RESET}\n\n"
 
     # Prompt user to reboot
     read -rp "${CAT} Would you like to reboot now? (y/n): ${RESET}" HYP

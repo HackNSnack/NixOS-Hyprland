@@ -1,7 +1,6 @@
 # 💫 https://github.com/JaKooLit 💫 #
 # Main default config
 
-# NOTE!!! : Packages and Fonts are configured in packages-&-fonts.nix
 {
   pkgs,
   host,
@@ -18,12 +17,10 @@ in
   imports = [
     ./hardware.nix
     ./users.nix
-    ./nixld.nix
-    #./ollama_cuda.nix
     ./packages-fonts.nix
     ../../modules/amd-drivers.nix
-    #../../modules/nvidia-drivers.nix
-    #../../modules/nvidia-prime-drivers.nix
+    ../../modules/nvidia-drivers.nix
+    ../../modules/nvidia-prime-drivers.nix
     ../../modules/intel-drivers.nix
     ../../modules/vm-guest-services.nix
     ../../modules/local-hardware-clock.nix
@@ -49,17 +46,13 @@ in
     initrd = {
       availableKernelModules = [
         "xhci_pci"
-        "xhci_hcd"
         "ahci"
         "nvme"
         "usb_storage"
         "usbhid"
         "sd_mod"
-        "sr_mod"
-        "evdev"
       ];
       kernelModules = [ ];
-      systemd.enable = true;
     };
 
     # Needed For Some Steam Games
@@ -76,7 +69,7 @@ in
       canTouchEfiVariables = true;
     };
 
-    loader.timeout = 10;
+    loader.timeout = 5;
 
     # Bootloader GRUB
     #loader.grub = {
@@ -109,7 +102,7 @@ in
       magicOrExtension = ''\x7fELF....AI\x02'';
     };
 
-    plymouth.enable = true;
+    plymouth.enable = false;
   };
 
   # GRUB Bootloader theme. Of course you need to enable GRUB above.. duh! and also, enable it on flake.nix
@@ -120,7 +113,7 @@ in
 
   # Extra Module Options
   drivers = {
-    #amdgpu.enable = true;
+    amdgpu.enable = false;
     intel.enable = true;
     nvidia.enable = false;
     nvidia-prime = {
@@ -137,72 +130,40 @@ in
     networkmanager.enable = true;
     hostName = "${host}";
     timeServers = options.networking.timeServers.default ++ [ "pool.ntp.org" ];
-    hosts = {
-      "127.0.0.1" = [
-        "ardoqbundlesproduction.localhost"
-        "piedpiper.localhost"
-        "dkellyltd.localhost"
-      ];
-      "10.0.3.180" = [
-        "llm-gateway.hq.ardoq"
-        "llm-gateway.hq.ardoq.dev"
-      ];
-    };
-
   };
 
   # Set your time zone.
-  time.timeZone = "Europe/Oslo";
-  #services.automatic-timezoned.enable = true; #based on IP location
+  services.automatic-timezoned.enable = true; # based on IP location
 
   #https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
   # Select internationalisation properties.
-  i18n.defaultLocale = "en_GB.UTF-8";
+  i18n.defaultLocale = "en_US.UTF-8";
 
   i18n.extraLocaleSettings = {
-    LC_ADDRESS = "nb_NO.UTF-8";
-    LC_IDENTIFICATION = "nb_NO.UTF-8";
-    LC_MEASUREMENT = "nb_NO.UTF-8";
-    LC_MONETARY = "nb_NO.UTF-8";
-    LC_NAME = "nb_NO.UTF-8";
-    LC_NUMERIC = "nb_NO.UTF-8";
-    LC_PAPER = "nb_NO.UTF-8";
-    LC_TELEPHONE = "nb_NO.UTF-8";
-    LC_TIME = "nb_NO.UTF-8";
+    LC_ADDRESS = "en_US.UTF-8";
+    LC_IDENTIFICATION = "en_US.UTF-8";
+    LC_MEASUREMENT = "en_US.UTF-8";
+    LC_MONETARY = "en_US.UTF-8";
+    LC_NAME = "en_US.UTF-8";
+    LC_NUMERIC = "en_US.UTF-8";
+    LC_PAPER = "en_US.UTF-8";
+    LC_TELEPHONE = "en_US.UTF-8";
+    LC_TIME = "en_US.UTF-8";
   };
 
   # Services to start
   services = {
-    # Antivirus
-    clamav = {
-      daemon.enable = true;
-      updater.enable = true;
-    };
     xserver = {
-      enable = true;
-      videoDrivers = [
-        "modesetting"
-        "displaylink"
-      ];
+      enable = false;
       xkb = {
         layout = "${keyboardLayout}";
         variant = "";
       };
     };
 
-    greetd = {
-      enable = true;
-      settings = {
-        default_session = {
-          user = username;
-          command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd Hyprland"; # start Hyprland with a TUI login manager
-        };
-      };
-    };
-
     smartd = {
-      enable = false;
+      enable = true;
       autodetect = true;
     };
 
@@ -218,16 +179,7 @@ in
     };
 
     #pulseaudio.enable = false; #unstable
-    udev = {
-      enable = true;
-      packages = with pkgs; [
-        qmk
-        qmk-udev-rules # the only relevant
-        qmk_hid
-        via
-        vial
-      ];
-    };
+    udev.enable = true;
     envfs.enable = true;
     dbus.enable = true;
 
@@ -262,13 +214,12 @@ in
     #  ];
     #};
 
-    avahi = {
-      enable = true;
-      nssmdns4 = true;
-      openFirewall = true;
-    };
+    #avahi = {
+    #  enable = true;
+    #  nssmdns4 = true;
+    #  openFirewall = true;
+    #};
 
-    cloudflare-warp.enable = true;
     #ipp-usb.enable = true;
 
     #syncthing = {
@@ -279,6 +230,8 @@ in
     #};
 
   };
+
+  security.sudo.wheelNeedsPassword = false; 
 
   systemd.services.flatpak-repo = {
     path = [ pkgs.flatpak ];
@@ -376,11 +329,10 @@ in
 
   # Virtualization / Containers
   virtualisation.libvirtd.enable = false;
-  virtualisation.docker.enable = true;
   virtualisation.podman = {
     enable = false;
-    dockerCompat = true;
-    defaultNetwork.settings.dns_enabled = true;
+    dockerCompat = false;
+    defaultNetwork.settings.dns_enabled = false;
   };
 
   # OpenGL
@@ -395,19 +347,11 @@ in
   # For Hyprland QT Support
   environment.sessionVariables.QML_IMPORT_PATH = "${pkgs.hyprland-qt-support}/lib/qt-6/qml";
 
-  networking.firewall = {
-    enable = true;
-    trustedInterfaces = [ ];
-    allowedTCPPorts = [ 80 ];
-    allowedUDPPorts = [ 80 ];
-    # Adding custom iptables rules
-    extraCommands = "
-      iptables -I nixos-fw 1 -i br+ -j ACCEPT
-    ";
-    extraStopCommands = "
-      iptables -D nixos-fw -i br+ -j ACCEPT
-    ";
-  };
+  # Open ports in the firewall.
+  # networking.firewall.allowedTCPPorts = [ ... ];
+  # networking.firewall.allowedUDPPorts = [ ... ];
+  # Or disable the firewall altogether.
+  # networking.firewall.enable = false;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

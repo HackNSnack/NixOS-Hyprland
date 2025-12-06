@@ -1,13 +1,11 @@
 # 💫 https://github.com/JaKooLit 💫 #
 # Main default config
 
-# NOTE!!! : Packages and Fonts are configured in packages-&-fonts.nix
-{
-  pkgs,
-  host,
-  username,
-  options,
-  ...
+{ pkgs
+, host
+, username
+, options
+, ...
 }:
 let
 
@@ -18,12 +16,10 @@ in
   imports = [
     ./hardware.nix
     ./users.nix
-    ./nixld.nix
-    #./ollama_cuda.nix
     ./packages-fonts.nix
     ../../modules/amd-drivers.nix
-    #../../modules/nvidia-drivers.nix
-    #../../modules/nvidia-prime-drivers.nix
+    ../../modules/nvidia-drivers.nix
+    ../../modules/nvidia-prime-drivers.nix
     ../../modules/intel-drivers.nix
     ../../modules/vm-guest-services.nix
     ../../modules/local-hardware-clock.nix
@@ -31,8 +27,8 @@ in
 
   # BOOT related stuff
   boot = {
-    kernelPackages = pkgs.linuxPackages_zen; # zen Kernel
-    #kernelPackages = pkgs.linuxPackages_latest; # Kernel
+    #kernelPackages = pkgs.linuxPackages_zen; # zen Kernel
+    kernelPackages = pkgs.linuxPackages_latest; # Kernel
 
     kernelParams = [
       "systemd.mask=systemd-vconsole-setup.service"
@@ -49,26 +45,15 @@ in
     initrd = {
       availableKernelModules = [
         "xhci_pci"
-        "xhci_hcd"
         "ahci"
         "nvme"
         "usb_storage"
         "usbhid"
         "sd_mod"
-        "sr_mod"
-        "evdev"
       ];
       kernelModules = [ ];
-      systemd.enable = true;
     };
 
-    # Needed For Some Steam Games
-    #kernel.sysctl = {
-    #  "vm.max_map_count" = 2147483642;
-    #};
-
-    ## BOOT LOADERS: NOTE USE ONLY 1. either systemd or grub
-    # Bootloader SystemD
     loader.systemd-boot.enable = true;
 
     loader.efi = {
@@ -77,19 +62,6 @@ in
     };
 
     loader.timeout = 10;
-
-    # Bootloader GRUB
-    #loader.grub = {
-    #enable = true;
-    #  devices = [ "nodev" ];
-    #  efiSupport = true;
-    #  gfxmodeBios = "auto";
-    #  memtest86.enable = true;
-    #  extraGrubInstallArgs = [ "--bootloader-id=${host}" ];
-    #  configurationName = "${host}";
-    #	 };
-
-    # Bootloader GRUB theme, configure below
 
     ## -end of BOOTLOADERS----- ##
 
@@ -109,19 +81,13 @@ in
       magicOrExtension = ''\x7fELF....AI\x02'';
     };
 
-    plymouth.enable = true;
+    plymouth.enable = false;
   };
-
-  # GRUB Bootloader theme. Of course you need to enable GRUB above.. duh! and also, enable it on flake.nix
-  #distro-grub-themes = {
-  #  enable = true;
-  #  theme = "nixos";
-  #};
 
   # Extra Module Options
   drivers = {
-    #amdgpu.enable = true;
-    intel.enable = true;
+    amdgpu.enable = false;
+    intel.enable = false;
     nvidia.enable = false;
     nvidia-prime = {
       enable = false;
@@ -129,75 +95,47 @@ in
       nvidiaBusID = "";
     };
   };
-  vm.guest-services.enable = false;
+  vm.guest-services.enable = true;
   local.hardware-clock.enable = false;
+
+  services = {
+    qemuGuest.enable = true;
+    spice-vdagentd.enable = true;
+    spice-webdavd.enable = true;
+  };
 
   # networking
   networking = {
     networkmanager.enable = true;
     hostName = "${host}";
     timeServers = options.networking.timeServers.default ++ [ "pool.ntp.org" ];
-    hosts = {
-      "127.0.0.1" = [
-        "ardoqbundlesproduction.localhost"
-        "piedpiper.localhost"
-        "dkellyltd.localhost"
-      ];
-      "10.0.3.180" = [
-        "llm-gateway.hq.ardoq"
-        "llm-gateway.hq.ardoq.dev"
-      ];
-    };
-
   };
 
   # Set your time zone.
-  time.timeZone = "Europe/Oslo";
-  #services.automatic-timezoned.enable = true; #based on IP location
-
-  #https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  services.automatic-timezoned.enable = true; # based on IP location
 
   # Select internationalisation properties.
-  i18n.defaultLocale = "en_GB.UTF-8";
+  i18n.defaultLocale = "en_US.UTF-8";
 
   i18n.extraLocaleSettings = {
-    LC_ADDRESS = "nb_NO.UTF-8";
-    LC_IDENTIFICATION = "nb_NO.UTF-8";
-    LC_MEASUREMENT = "nb_NO.UTF-8";
-    LC_MONETARY = "nb_NO.UTF-8";
-    LC_NAME = "nb_NO.UTF-8";
-    LC_NUMERIC = "nb_NO.UTF-8";
-    LC_PAPER = "nb_NO.UTF-8";
-    LC_TELEPHONE = "nb_NO.UTF-8";
-    LC_TIME = "nb_NO.UTF-8";
+    LC_ADDRESS = "en_US.UTF-8";
+    LC_IDENTIFICATION = "en_US.UTF-8";
+    LC_MEASUREMENT = "en_US.UTF-8";
+    LC_MONETARY = "en_US.UTF-8";
+    LC_NAME = "en_US.UTF-8";
+    LC_NUMERIC = "en_US.UTF-8";
+    LC_PAPER = "en_US.UTF-8";
+    LC_TELEPHONE = "en_US.UTF-8";
+    LC_TIME = "en_US.UTF-8";
   };
 
   # Services to start
   services = {
-    # Antivirus
-    clamav = {
-      daemon.enable = true;
-      updater.enable = true;
-    };
     xserver = {
-      enable = true;
-      videoDrivers = [
-        "modesetting"
-        "displaylink"
-      ];
+      enable = false;
       xkb = {
         layout = "${keyboardLayout}";
         variant = "";
-      };
-    };
-
-    greetd = {
-      enable = true;
-      settings = {
-        default_session = {
-          user = username;
-          command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd Hyprland"; # start Hyprland with a TUI login manager
-        };
       };
     };
 
@@ -218,16 +156,7 @@ in
     };
 
     #pulseaudio.enable = false; #unstable
-    udev = {
-      enable = true;
-      packages = with pkgs; [
-        qmk
-        qmk-udev-rules # the only relevant
-        qmk_hid
-        via
-        vial
-      ];
-    };
+    udev.enable = true;
     envfs.enable = true;
     dbus.enable = true;
 
@@ -244,14 +173,14 @@ in
     openssh.enable = true;
     flatpak.enable = true;
 
-    blueman.enable = true;
+    blueman.enable = false;
 
     #hardware.openrgb.enable = true;
     #hardware.openrgb.motherboard = "amd";
 
-    fwupd.enable = true;
+    fwupd.enable = false;
 
-    upower.enable = true;
+    upower.enable = false;
 
     gnome.gnome-keyring.enable = true;
 
@@ -262,21 +191,13 @@ in
     #  ];
     #};
 
-    avahi = {
-      enable = true;
-      nssmdns4 = true;
-      openFirewall = true;
-    };
-
-    cloudflare-warp.enable = true;
-    #ipp-usb.enable = true;
-
-    #syncthing = {
-    #  enable = false;
-    #  user = "${username}";
-    #  dataDir = "/home/${username}";
-    #  configDir = "/home/${username}/.config/syncthing";
+    #avahi = {
+    #  enable = true;
+    #  nssmdns4 = true;
+    #  openFirewall = true;
     #};
+
+    #ipp-usb.enable = true;
 
   };
 
@@ -318,8 +239,8 @@ in
   # Bluetooth
   hardware = {
     bluetooth = {
-      enable = true;
-      powerOnBoot = true;
+      enable = false;
+      powerOnBoot = false;
       settings = {
         General = {
           Enable = "Source,Sink,Media,Socket";
@@ -375,10 +296,9 @@ in
   };
 
   # Virtualization / Containers
-  virtualisation.libvirtd.enable = false;
-  virtualisation.docker.enable = true;
+  virtualisation.libvirtd.enable = true;
   virtualisation.podman = {
-    enable = false;
+    enable = true;
     dockerCompat = true;
     defaultNetwork.settings.dns_enabled = true;
   };
@@ -390,30 +310,18 @@ in
 
   console.keyMap = "us";
 
+  security.sudo.wheelNeedsPassword = false;
+
   # For Electron apps to use wayland
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
   # For Hyprland QT Support
   environment.sessionVariables.QML_IMPORT_PATH = "${pkgs.hyprland-qt-support}/lib/qt-6/qml";
 
-  networking.firewall = {
-    enable = true;
-    trustedInterfaces = [ ];
-    allowedTCPPorts = [ 80 ];
-    allowedUDPPorts = [ 80 ];
-    # Adding custom iptables rules
-    extraCommands = "
-      iptables -I nixos-fw 1 -i br+ -j ACCEPT
-    ";
-    extraStopCommands = "
-      iptables -D nixos-fw -i br+ -j ACCEPT
-    ";
-  };
+  # Open ports in the firewall.
+  # networking.firewall.allowedTCPPorts = [ ... ];
+  # networking.firewall.allowedUDPPorts = [ ... ];
+  # Or disable the firewall altogether.
+  # networking.firewall.enable = false;
 
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "24.11"; # Did you read the comment?
 }
