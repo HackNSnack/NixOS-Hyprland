@@ -31,7 +31,7 @@ in
 
   nixpkgs.config = {
     allowUnfree = true;
-    allowUnsupportedSystem = true;
+    #allowUnsupportedSystem = true;
     cudaSupport = true;
   };
 
@@ -55,7 +55,7 @@ in
       killall
       libappindicator
       libnotify
-      #xfce.xfce4-notifyd
+      xfce.xfce4-notifyd
       openssl # required by Rainbow borders
       pciutils
       vim
@@ -138,7 +138,7 @@ in
       kdePackages.qt6ct
       kdePackages.qtwayland
       kdePackages.qtstyleplugin-kvantum # kvantum
-      rofi-wayland
+      rofi
       slurp
       swappy
       swaynotificationcenter
@@ -206,7 +206,7 @@ in
       kdePackages.qt6ct
       kdePackages.qtwayland
       kdePackages.qtstyleplugin-kvantum # kvantum
-      rofi-wayland
+      rofi
       slurp
       swappy
       swaynotificationcenter

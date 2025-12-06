@@ -18,21 +18,16 @@
       fsType = "ext4";
     };
 
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/8EFB-0C94";
-      fsType = "vfat";
-      options = [ "fmask=0077" "dmask=0077" ];
-    };
-
   fileSystems."/bin" =
     { device = "/usr/bin";
       fsType = "none";
       options = [ "bind" ];
     };
 
-  fileSystems."/var/lib/docker/overlay2/2b7f8ef94f99e79b56bf591b3a267fa25724f3822d9d36f154750cdc5e6e6b14/merged" =
-    { device = "overlay";
-      fsType = "overlay";
+  fileSystems."/boot" =
+    { device = "/dev/disk/by-uuid/8EFB-0C94";
+      fsType = "vfat";
+      options = [ "fmask=0077" "dmask=0077" ];
     };
 
   fileSystems."/var/lib/docker/overlay2/a0cf1e71caf7dbb1fc8cc0e62f9aca77a380ecca43cd598a8e0d8e16162254ba/merged" =
@@ -41,6 +36,11 @@
     };
 
   fileSystems."/var/lib/docker/overlay2/fa1b7731a9ea437149d533bc6db7b1f1bb36a86777c53adf8011d129e7d41257/merged" =
+    { device = "overlay";
+      fsType = "overlay";
+    };
+
+  fileSystems."/var/lib/docker/overlay2/2b7f8ef94f99e79b56bf591b3a267fa25724f3822d9d36f154750cdc5e6e6b14/merged" =
     { device = "overlay";
       fsType = "overlay";
     };
