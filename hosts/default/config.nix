@@ -43,8 +43,9 @@ in
     ];
 
     # This is for OBS Virtual Cam Support
-    #kernelModules = [ "v4l2loopback" ];
-    #  extraModulePackages = [ config.boot.kernelPackages.v4l2loopback ];
+    kernelModules = [ "v4l2loopback" ];
+    extraModulePackages = [ config.boot.kernelPackages.v4l2loopback ];
+
 
     initrd = {
       availableKernelModules = [
@@ -179,18 +180,17 @@ in
       daemon.enable = true;
       updater.enable = true;
     };
-    # xserver = {
-    #   enable = true;
-    #   videoDrivers = [
-    #     # "modesetting"
-    #     # "displaylink"
-    #     "nvidia"
-    #   ];
-    #   xkb = {
-    #     layout = "${keyboardLayout}";
-    #     variant = "";
-    #   };
-    # };
+    xserver = {
+      enable = true;
+      videoDrivers = [
+        "modesetting"
+        "displaylink"
+      ];
+      xkb = {
+        layout = "${keyboardLayout}";
+        variant = "";
+      };
+    };
 
     greetd = {
       enable = true;
