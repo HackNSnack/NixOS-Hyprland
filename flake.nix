@@ -10,7 +10,7 @@
     #distro-grub-themes.url = "github:AdisonCavani/distro-grub-themes";
     home-manager.url = "github:nix-community/home-manager/release-25.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
-    nixvim.url = "github:nix-community/nixvim/nixos-25.11";
+    #nixvim.url = "github:nix-community/nixvim/nixos-25.11";
     #hyprland.url = "github:hyprwm/Hyprland"; # hyprland development
 
     ags = {
@@ -59,7 +59,7 @@
             ./modules/quickshell.nix # quickshell module
             ./modules/packages.nix # Software packages
             # Allow broken packages (temporary fix for broken CUDA in nixos-unstable)
-            { nixpkgs.config.allowBroken = true; }
+            #{ nixpkgs.config.allowBroken = true; }
             ./modules/fonts.nix # Fonts packages
             ./modules/portals.nix # portal
             ./modules/theme.nix # Set dark theme

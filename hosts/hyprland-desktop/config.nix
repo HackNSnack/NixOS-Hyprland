@@ -152,7 +152,6 @@ in
   };
 
   # Set your time zone.
-  time.timeZone = "Europe/Oslo";
   #services.automatic-timezoned.enable = true; #based on IP location
 
   #https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
@@ -388,7 +387,7 @@ in
     enable = true;
   };
 
-  console.keyMap = "us";
+  console.keyMap = "no";
 
   # For Electron apps to use wayland
   environment.sessionVariables.NIXOS_OZONE_WL = "1";

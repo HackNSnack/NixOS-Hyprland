@@ -1,9 +1,10 @@
-{ pkgs, ... }: {
+{ pkgs, ... }:
+{
   programs.btop = {
     enable = true;
     package = pkgs.btop.override {
-      rocmSupport = true;
-      cudaSupport = true;
+      # rocmSupport = true;
+      cudaSupport = false;
     };
     settings = {
       vim_keys = true;

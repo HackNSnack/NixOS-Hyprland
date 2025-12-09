@@ -47,7 +47,7 @@
 
   };
   nixpkgs.config.allowUnfree = true;
-  nixpkgs.config.cudaSupport = true;
+  nixpkgs.config.cudaSupport = false;
 
   environment.systemPackages = with pkgs; [
 
@@ -88,10 +88,6 @@
     appimage-run
     bc
     brightnessctl
-    (btop.override {
-      cudaSupport = true;
-      rocmSupport = true;
-    })
     bottom
     baobab
     btrfs-progs
@@ -118,7 +114,7 @@
     glib # for gsettings to work
     gsettings-qt
     git
-    google-chrome
+        #google-chrome
     gnome-system-monitor
     fastfetch
     jq
@@ -134,14 +130,14 @@
     kdePackages.qt6ct
     kdePackages.qtwayland
     kdePackages.qtstyleplugin-kvantum # kvantum
-    lazydocker
-    lazygit
+    # lazydocker
+    # lazygit
     libappindicator
     libnotify
     libsForQt5.qtstyleplugin-kvantum # kvantum
     libsForQt5.qt5ct
     (mpv.override { scripts = [ mpvScripts.mpris ]; }) # with tray
-    nvtopPackages.full
+    #nvtopPackages.full
     openssl # required by Rainbow borders
     pciutils
     networkmanagerapplet
@@ -172,7 +168,6 @@
     wget
     xarchiver
     yad
-    yazi
     yt-dlp
 
     (inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default)
