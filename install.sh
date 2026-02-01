@@ -288,6 +288,30 @@ if $DO_ZSHRC; then
     # Copying the preconfigured zsh themes and profile
     cp -r 'assets/.zshrc' ~/
     echo "$OK Copied .zshrc"
+
+    # Download oh-my-posh theme if not present
+    if [ ! -f "$HOME/jandedobbeleer.omp.json" ]; then
+        echo "$NOTE Downloading oh-my-posh theme..."
+        if curl -fsSL https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/jandedobbeleer.omp.json -o "$HOME/jandedobbeleer.omp.json"; then
+            echo "$OK oh-my-posh theme downloaded"
+        else
+            echo "$WARN Failed to download oh-my-posh theme"
+        fi
+    else
+        echo "$NOTE oh-my-posh theme already exists"
+    fi
+
+    # Download fzf-git.sh if not present
+    if [ ! -f "$HOME/fzf-git.sh" ]; then
+        echo "$NOTE Downloading fzf-git.sh..."
+        if curl -fsSL https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh -o "$HOME/fzf-git.sh"; then
+            echo "$OK fzf-git.sh downloaded"
+        else
+            echo "$WARN Failed to download fzf-git.sh"
+        fi
+    else
+        echo "$NOTE fzf-git.sh already exists"
+    fi
 else
     echo "$NOTE Skipping .zshrc"
 fi
