@@ -425,7 +425,7 @@ if $DO_NEOVIM_CONFIG; then
         cd ~/NixOS-Hyprland
     else
         echo "$NOTE Cloning Neovim configuration..."
-        if git clone --depth 1 https://github.com/YOUR_USERNAME/nvim-config.git ~/.config/nvim; then
+        if git clone --depth 1 https://github.com/HackNSnack/nvim2.git ~/.config/nvim; then
             echo "$OK Neovim configuration installed successfully"
         else
             echo "$ERROR Failed to clone Neovim configuration"
@@ -452,7 +452,7 @@ if $DO_WAYBAR_CONFIG; then
         cd ~/NixOS-Hyprland
     else
         echo "$NOTE Cloning Waybar configuration..."
-        if git clone --depth 1 https://github.com/YOUR_USERNAME/waybar-config.git ~/.config/waybar; then
+        if git clone --depth 1 https://github.com/HackNSnack/waybar_configs.git ~/.config/waybar; then
             echo "$OK Waybar configuration installed successfully"
         else
             echo "$ERROR Failed to clone Waybar configuration"
