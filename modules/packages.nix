@@ -70,6 +70,33 @@
       nix-collect-garbage --delete-old && sudo nix-collect-garbage -d && sudo /run/current-system/bin/switch-to-configuration boot
     '')
 
+    # Update only fast-moving packages (claude-code, neovim, zoom, vivaldi, slack)
+    (writeShellScriptBin "update-latest" ''
+      cd ~/NixOS-Hyprland
+      echo "Updating fast-moving package inputs..."
+      nix flake lock --update-input claude-code
+      nix flake lock --update-input neovim-nightly
+      nix flake lock --update-input nixpkgs-latest
+      echo "Rebuilding with updated packages..."
+      nh os switch -H ${host} .
+    '')
+
+    # Update only Claude Code
+    (writeShellScriptBin "update-claude" ''
+      cd ~/NixOS-Hyprland
+      echo "Updating Claude Code..."
+      nix flake lock --update-input claude-code
+      nh os switch -H ${host} .
+    '')
+
+    # Update only Neovim
+    (writeShellScriptBin "update-neovim" ''
+      cd ~/NixOS-Hyprland
+      echo "Updating Neovim..."
+      nix flake lock --update-input neovim-nightly
+      nh os switch -H ${host} .
+    '')
+
     # Hyprland Stuff
     hypridle
     hyprpolkitagent
@@ -176,7 +203,9 @@
     wget
     xarchiver
     yad
-    yazi
+    (yazi.override {
+      _7zz = _7zz-rar; # Support for RAR extraction
+    })
     xdg-user-dirs #needed for copy.sh 
     yt-dlp
 

@@ -37,6 +37,8 @@
       nerd-fonts.lilex
       nerd-fonts.meslo-lg
       nerd-fonts.fira-mono
+      nerd-fonts.fira-code
+      nerd-fonts.fantasque-sans-mono
       nerd-fonts.space-mono
       nerd-fonts.ubuntu
       powerline-fonts

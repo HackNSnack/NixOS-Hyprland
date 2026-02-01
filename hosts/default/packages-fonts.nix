@@ -1,24 +1,12 @@
-# 💫 https://github.com/JaKooLit 💫 #
-# Packages for this host only
-{pkgs, ...}: let
-  python-packages = pkgs.python3.withPackages (
-    ps:
-      with ps; [
-        requests
-        pyquery # needed for hyprland-dots Weather script
-      ]
-  );
-in {
+# Host-specific packages
+# Most packages are now in modules/packages/*.nix
+# This file is for packages unique to this host only
+{ pkgs, ... }: {
   nixpkgs.config.allowUnfree = true;
 
-  environment.systemPackages =
-    (with pkgs; [
-      # System Packages
-      fastfetch
-    ])
-    ++ [
-      python-packages
-    ];
+  environment.systemPackages = with pkgs; [
+    # Add any host-specific packages here
+  ];
 
   programs = {
     steam = {

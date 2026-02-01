@@ -1,5 +1,9 @@
 {inputs, ...}: {
   nixpkgs.overlays = [
+    # Neovim nightly - always latest stable builds
+    # Update with: nix flake lock --update-input neovim-nightly
+    inputs.neovim-nightly.overlays.default
+
     (final: prev: rec {
       waybar-weather = final.callPackage ../pkgs/waybar-weather.nix {};
       # Helper: provide a clean cxxopts.pc to avoid broken upstream pc requiring non-existent icu-cu

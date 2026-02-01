@@ -3,12 +3,21 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    #nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+
     home-manager.url = "github:nix-community/home-manager/master";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
-    nixvim.url = "github:nix-community/nixvim/main";
+
     #hyprland.url = "github:hyprwm/Hyprland"; # hyprland development
     alejandra.url = "github:kamadorueda/alejandra";
+
+    # Always-latest package flakes
+    # Update with: nix flake lock --update-input <input-name>
+    claude-code.url = "github:sadjow/claude-code-nix"; # Hourly updates
+    neovim-nightly.url = "github:nix-community/neovim-nightly-overlay";
+
+    # For packages without dedicated flakes (zoom, slack, vivaldi)
+    # This can be updated independently of main nixpkgs
+    nixpkgs-latest.url = "github:nixos/nixpkgs/nixos-unstable";
 
     ags = {
       type = "github";
@@ -37,8 +46,8 @@
     }:
     let
       system = "x86_64-linux";
-      host = "jak-hl";
-      username = "dwilliams";
+      host = "default";
+      username = "mathipe";
 
       pkgs = import nixpkgs {
         inherit system;
@@ -46,6 +55,15 @@
           allowUnfree = true;
         };
       };
+
+      # For packages without dedicated flakes (zoom, slack, vivaldi)
+      pkgs-latest = import inputs.nixpkgs-latest {
+        inherit system;
+        config = {
+          allowUnfree = true;
+        };
+      };
+
       waybarWeatherPkg = pkgs.callPackage ./pkgs/waybar-weather.nix { };
     in
     {
@@ -59,6 +77,7 @@
             inherit inputs;
             inherit username;
             inherit host;
+            inherit pkgs-latest;
           };
           modules = [
             ./hosts/${host}/config.nix
@@ -81,7 +100,6 @@
               home-manager.useUserPackages = true;
               home-manager.backupFileExtension = "hm-bak";
 
-              # Ensure HM modules can access flake inputs (e.g., inputs.nixvim)
               home-manager.extraSpecialArgs = { inherit inputs system username host; };
 
               home-manager.users.${username} = {

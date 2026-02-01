@@ -2,7 +2,6 @@
   imports = [
     ./terminals/tmux.nix
     ./terminals/ghostty.nix
-    ./editors/nixvim.nix
     ./cli/bat.nix
     ./cli/btop.nix
     ./cli/bottom.nix

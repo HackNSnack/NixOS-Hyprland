@@ -13,12 +13,40 @@ in {
     ./hardware.nix
     ./users.nix
     ./packages-fonts.nix
+
+    # Driver modules
     ../../modules/amd-drivers.nix
     ../../modules/nvidia-drivers.nix
     ../../modules/nvidia-prime-drivers.nix
     ../../modules/intel-drivers.nix
     ../../modules/vm-guest-services.nix
     ../../modules/local-hardware-clock.nix
+
+    # Development environments (comment out what you don't need)
+    ../../modules/packages/dev-python.nix
+    ../../modules/packages/dev-clojure.nix
+    ../../modules/packages/dev-dotnet.nix
+    ../../modules/packages/dev-node.nix
+    ../../modules/packages/dev-nix-lua.nix
+
+    # Tools and services
+    ../../modules/packages/cloud.nix
+    ../../modules/packages/database.nix
+    ../../modules/packages/communication.nix
+    ../../modules/packages/ai-tools.nix
+    ../../modules/packages/security.nix
+    ../../modules/packages/misc.nix
+    ../../modules/packages/browsers.nix
+
+    # Applications
+    ../../modules/packages/keyboards.nix
+    ../../modules/packages/media.nix
+    ../../modules/packages/productivity.nix
+    ../../modules/packages/privacy.nix
+    ../../modules/packages/dev-editors.nix
+
+    # System
+    ../../modules/nix-ld.nix
   ];
 
   # BOOT related stuff
@@ -34,9 +62,9 @@ in {
       "modprobe.blacklist=iTCO_wdt" # watchdog for Intel
     ];
 
-    # This is for OBS Virtual Cam Support
-    #kernelModules = [ "v4l2loopback" ];
-    #  extraModulePackages = [ config.boot.kernelPackages.v4l2loopback ];
+    # OBS Virtual Cam Support
+    kernelModules = ["v4l2loopback"];
+    extraModulePackages = [pkgs.linuxPackages_zen.v4l2loopback];
 
     initrd = {
       availableKernelModules = [
@@ -125,26 +153,37 @@ in {
     networkmanager.enable = true;
     hostName = "${host}";
     timeServers = options.networking.timeServers.default ++ ["pool.ntp.org"];
+
+    # Custom hosts entries for local development
+    hosts = {
+      "127.0.0.1" = [
+        "ardoqbundlesproduction.localhost"
+        "piedpiper.localhost"
+        "dkellyltd.localhost"
+      ];
+      "10.0.3.180" = [
+        "llm-gateway.hq.ardoq"
+        "llm-gateway.hq.ardoq.dev"
+      ];
+    };
   };
 
   # Set your time zone.
-  services.automatic-timezoned.enable = true; # based on IP location
-
-  #https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time.timeZone = "Europe/Oslo";
 
   # Select internationalisation properties.
-  i18n.defaultLocale = "en_US.UTF-8";
+  i18n.defaultLocale = "en_GB.UTF-8";
 
   i18n.extraLocaleSettings = {
-    LC_ADDRESS = "en_US.UTF-8";
-    LC_IDENTIFICATION = "en_US.UTF-8";
-    LC_MEASUREMENT = "en_US.UTF-8";
-    LC_MONETARY = "en_US.UTF-8";
-    LC_NAME = "en_US.UTF-8";
-    LC_NUMERIC = "en_US.UTF-8";
-    LC_PAPER = "en_US.UTF-8";
-    LC_TELEPHONE = "en_US.UTF-8";
-    LC_TIME = "en_US.UTF-8";
+    LC_ADDRESS = "nb_NO.UTF-8";
+    LC_IDENTIFICATION = "nb_NO.UTF-8";
+    LC_MEASUREMENT = "nb_NO.UTF-8";
+    LC_MONETARY = "nb_NO.UTF-8";
+    LC_NAME = "nb_NO.UTF-8";
+    LC_NUMERIC = "nb_NO.UTF-8";
+    LC_PAPER = "nb_NO.UTF-8";
+    LC_TELEPHONE = "nb_NO.UTF-8";
+    LC_TIME = "nb_NO.UTF-8";
   };
 
   # Services to start
@@ -209,11 +248,15 @@ in {
     #  ];
     #};
 
-    #avahi = {
-    #  enable = true;
-    #  nssmdns4 = true;
-    #  openFirewall = true;
-    #};
+    # Network discovery (mDNS)
+    avahi = {
+      enable = true;
+      nssmdns4 = true;
+      openFirewall = true;
+    };
+
+    # Cloudflare WARP VPN
+    cloudflare-warp.enable = true;
 
     #ipp-usb.enable = true;
 
@@ -321,6 +364,7 @@ in {
 
   # Virtualization / Containers
   virtualisation.libvirtd.enable = false;
+  virtualisation.docker.enable = true;
   virtualisation.podman = {
     enable = false;
     dockerCompat = false;
@@ -332,18 +376,22 @@ in {
     enable = true;
   };
 
-  console.keyMap = "us";
+  console.keyMap = "no";
 
   # For Electron apps to use wayland
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
   # For Hyprland QT Support
   environment.sessionVariables.QML_IMPORT_PATH = "${pkgs.hyprland-qt-support}/lib/qt-6/qml";
 
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
+  # Firewall configuration
+  networking.firewall = {
+    enable = true;
+    allowedTCPPorts = [80];
+    allowedUDPPorts = [80];
+    # Allow traffic on bridge interfaces (Docker, VMs)
+    extraCommands = "iptables -I nixos-fw 1 -i br+ -j ACCEPT";
+    extraStopCommands = "iptables -D nixos-fw -i br+ -j ACCEPT || true";
+  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
