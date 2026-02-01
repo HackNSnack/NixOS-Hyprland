@@ -88,34 +88,24 @@ nhl_detect_gpu_and_toggle() {
 nhl_prompt_timezone_console() {
   # Args: $1 = hostName, $2 = defaultKeyboardLayout
   local hostName="$1"
-  local defKb="${2:-us}"
+  local defKb="${2:-no}"
   local cfg="./hosts/$hostName/config.nix"
   [ -f "$cfg" ] || cfg="./hosts/default/config.nix"
 
-  # Timezone prompt (default: auto-detect)
+  # Timezone prompt (default: Europe/Oslo)
   local timeZone
-  read -rp "Enter your timezone (e.g. America/New_York) or leave blank for auto-detect: [auto-detect] " timeZone </dev/tty
-  if [ -z "$timeZone" ]; then
-    # Prefer automatic time zone
-    if grep -q 'services\.automatic-timezoned\.enable' "$cfg"; then
-      sed -i 's/services\.automatic-timezoned\.enable = [^;]*/services.automatic-timezoned.enable = true/' "$cfg" || true
-    else
-      printf '\n  services.automatic-timezoned.enable = true;\n' >> "$cfg"
-    fi
-    # Remove explicit time.timeZone if present
-    sed -i '/time\.timeZone[[:space:]]*=/{d}' "$cfg" || true
+  read -rp "Enter your timezone (e.g. Europe/Oslo): [ Europe/Oslo ] " timeZone </dev/tty
+  timeZone=${timeZone:-Europe/Oslo}
+  # Set explicit timezone and disable automatic
+  if grep -q 'time\.timeZone' "$cfg"; then
+    sed -i "s|time\.timeZone = \".*\";|time.timeZone = \"$timeZone\";|" "$cfg" || true
   else
-    # Set explicit timezone and disable automatic
-    if grep -q 'time\.timeZone' "$cfg"; then
-      sed -i "s|time\.timeZone = \".*\";|time.timeZone = \"$timeZone\";|" "$cfg" || true
-    else
-      printf '\n  time.timeZone = "%s";\n' "$timeZone" >> "$cfg"
-    fi
-    if grep -q 'services\.automatic-timezoned\.enable' "$cfg"; then
-      sed -i 's/services\.automatic-timezoned\.enable = [^;]*/services.automatic-timezoned.enable = false/' "$cfg" || true
-    else
-      printf '\n  services.automatic-timezoned.enable = false;\n' >> "$cfg"
-    fi
+    printf '\n  time.timeZone = "%s";\n' "$timeZone" >> "$cfg"
+  fi
+  if grep -q 'services\.automatic-timezoned\.enable' "$cfg"; then
+    sed -i 's/services\.automatic-timezoned\.enable = [^;]*/services.automatic-timezoned.enable = false/' "$cfg" || true
+  else
+    printf '\n  services.automatic-timezoned.enable = false;\n' >> "$cfg"
   fi
 
   # Console keymap prompt (defaults to keyboardLayout)

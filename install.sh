@@ -191,9 +191,9 @@ if $DO_SYSTEM_CONFIG; then
     fi
     echo "-----"
 
-    read -rp "$CAT Enter your keyboard layout: [ us ] " keyboardLayout </dev/tty
+    read -rp "$CAT Enter your keyboard layout: [ no ] " keyboardLayout </dev/tty
     if [ -z "$keyboardLayout" ]; then
-        keyboardLayout="us"
+        keyboardLayout="no"
     fi
 
     sed -i 's/keyboardLayout\s*=\s*"\([^"]*\)"/keyboardLayout = "'"$keyboardLayout"'"/' ./hosts/$hostName/variables.nix
