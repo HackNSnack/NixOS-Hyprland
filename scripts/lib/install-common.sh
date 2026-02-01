@@ -96,28 +96,21 @@ nhl_prompt_timezone_console() {
   local timeZone
   read -rp "Enter your timezone (e.g. Europe/Oslo): [ Europe/Oslo ] " timeZone </dev/tty
   timeZone=${timeZone:-Europe/Oslo}
-  # Set explicit timezone and disable automatic
+  # Set explicit timezone and disable automatic (only modify if setting exists in config)
   if grep -q 'time\.timeZone' "$cfg"; then
     sed -i "s|time\.timeZone = \".*\";|time.timeZone = \"$timeZone\";|" "$cfg" || true
-  else
-    printf '\n  time.timeZone = "%s";\n' "$timeZone" >> "$cfg"
   fi
   if grep -q 'services\.automatic-timezoned\.enable' "$cfg"; then
     sed -i 's/services\.automatic-timezoned\.enable = [^;]*/services.automatic-timezoned.enable = false/' "$cfg" || true
-  else
-    printf '\n  services.automatic-timezoned.enable = false;\n' >> "$cfg"
   fi
 
   # Console keymap prompt (defaults to keyboardLayout)
   local consoleKeyMap
   read -rp "Enter your console keymap: [$defKb] " consoleKeyMap </dev/tty
   consoleKeyMap=${consoleKeyMap:-$defKb}
-  # Replace any existing console.keyMap assignment
+  # Replace existing console.keyMap assignment (only if it exists)
   if grep -q 'console\.keyMap' "$cfg"; then
     sed -i "s|console\.keyMap = \".*\";|console.keyMap = \"$consoleKeyMap\";|" "$cfg" || true
-  else
-    # Fallback: append a console.keyMap line near the end
-    printf '\n  console.keyMap = "%s";\n' "$consoleKeyMap" >> "$cfg"
   fi
 }
 
