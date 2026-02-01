@@ -3,7 +3,7 @@
   environment.systemPackages = with pkgs; [
     # Nix
     nil               # Nix language server
-    nixfmt-rfc-style  # Nix formatter
+    nixfmt            # Nix formatter (was nixfmt-rfc-style)
 
     # Lua
     lua-language-server
