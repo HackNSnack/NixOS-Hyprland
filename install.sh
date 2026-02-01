@@ -389,12 +389,22 @@ fi
 if $DO_NEOVIM_CONFIG; then
     # Neovim configuration
     printf "$NOTE Setting up Neovim configuration..\n"
-    if [ -d ~/.config/nvim ]; then
-        echo "$NOTE Neovim config exists, pulling latest changes..."
+    if [ -d ~/.config/nvim/.git ]; then
+        # It's a git repo, pull latest
+        echo "$NOTE Neovim config exists (git repo), pulling latest changes..."
         cd ~/.config/nvim
         git stash 2>/dev/null || true
         git pull
         cd ~/NixOS-Hyprland
+    elif [ -d ~/.config/nvim ]; then
+        # Directory exists but not a git repo, backup and clone
+        echo "$NOTE Neovim config exists but is not a git repo, backing up and cloning..."
+        mv ~/.config/nvim ~/.config/nvim.backup.$(date +%Y%m%d%H%M%S)
+        if git clone --depth 1 https://github.com/HackNSnack/nvim2.git ~/.config/nvim; then
+            echo "$OK Neovim configuration installed successfully"
+        else
+            echo "$ERROR Failed to clone Neovim configuration"
+        fi
     else
         echo "$NOTE Cloning Neovim configuration..."
         if git clone --depth 1 https://github.com/HackNSnack/nvim2.git ~/.config/nvim; then
@@ -416,12 +426,22 @@ fi
 if $DO_WAYBAR_CONFIG; then
     # Waybar configuration
     printf "$NOTE Setting up Waybar configuration..\n"
-    if [ -d ~/.config/waybar ]; then
-        echo "$NOTE Waybar config exists, pulling latest changes..."
+    if [ -d ~/.config/waybar/.git ]; then
+        # It's a git repo, pull latest
+        echo "$NOTE Waybar config exists (git repo), pulling latest changes..."
         cd ~/.config/waybar
         git stash 2>/dev/null || true
         git pull
         cd ~/NixOS-Hyprland
+    elif [ -d ~/.config/waybar ]; then
+        # Directory exists but not a git repo, backup and clone
+        echo "$NOTE Waybar config exists but is not a git repo, backing up and cloning..."
+        mv ~/.config/waybar ~/.config/waybar.backup.$(date +%Y%m%d%H%M%S)
+        if git clone --depth 1 https://github.com/HackNSnack/waybar_configs.git ~/.config/waybar; then
+            echo "$OK Waybar configuration installed successfully"
+        else
+            echo "$ERROR Failed to clone Waybar configuration"
+        fi
     else
         echo "$NOTE Cloning Waybar configuration..."
         if git clone --depth 1 https://github.com/HackNSnack/waybar_configs.git ~/.config/waybar; then
