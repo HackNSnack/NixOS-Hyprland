@@ -127,6 +127,7 @@
     baobab
     btrfs-progs
     cmatrix
+    swaylock-plugin  # Matrix-style lock screen with animated backgrounds
     distrobox
     dua
     duf

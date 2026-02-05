@@ -344,6 +344,11 @@ in {
       auth include login
     '';
   };
+  security.pam.services.swaylock-plugin = {
+    text = ''
+      auth include login
+    '';
+  };
 
   # Cachix, Optimization settings and garbage collection automation
   nix = {

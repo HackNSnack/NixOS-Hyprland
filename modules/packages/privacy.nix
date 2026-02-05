@@ -5,5 +5,6 @@
     protonvpn-gui
     proton-pass
     protonmail-desktop
+    git-credential-manager
   ];
 }

@@ -3,7 +3,6 @@
   environment.systemPackages = with pkgs; [
     cloudflare-warp
     moon
-    vim
     portaudio  # Required for audio development
 
     # CLI utilities
