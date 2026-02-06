@@ -2,8 +2,8 @@
 # Variables
 {
   # Git Configuration ( For Pulling Software Repos )
-  gitUsername = "HacknSnack";
-  gitEmail = "mathias.pettersen@proton.me";
+  gitUsername = "HackNSnack";
+  gitEmail = "56786723+HackNSnack@users.noreply.github.com";
 
   # Hyprland Settings
   extraMonitorSettings = "";
