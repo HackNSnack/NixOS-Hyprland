@@ -9,6 +9,7 @@
     ./cli/fzf.nix
     ./cli/git.nix
     ./cli/htop.nix
+    ./cli/oh-my-posh.nix
     ./cli/tealdeer.nix
     ./yazi
     ./overview.nix
