@@ -10,5 +10,8 @@
     xclip      # X11 clipboard
     zip        # Compression
     xdg-utils  # xdg-open and desktop integration
+
+    # Pre-commit niche package
+    gitleaks
   ];
 }

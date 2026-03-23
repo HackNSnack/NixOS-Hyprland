@@ -21,6 +21,7 @@ let
 
       # Audio
       sounddevice
+
     ]
   );
 in
@@ -29,7 +30,12 @@ in
     python-packages
 
     # Python tooling
-    pkgs.uv      # Fast Python package installer
-    pkgs.devenv  # Development environments
+    pkgs.uv # Fast Python package installer
+    pkgs.devenv # Development environments
+
+    # LSP, formatters, linters etc.
+    pkgs.black
+    pkgs.pyright
+    pkgs.ruff
   ];
 }

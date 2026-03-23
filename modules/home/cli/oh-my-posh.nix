@@ -228,7 +228,7 @@
 in {
   programs.oh-my-posh = {
     enable = true;
-    useTheme = false;
+    useTheme = null;
     settings = builtins.fromJSON (builtins.readFile jandedobbeleer-theme);
   };
 }
