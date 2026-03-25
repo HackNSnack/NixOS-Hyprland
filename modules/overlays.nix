@@ -4,6 +4,25 @@
     # Update with: nix flake lock --update-input neovim-nightly
     inputs.neovim-nightly.overlays.default
 
+    # Moon v2.x - nixpkgs is stuck on 1.x
+    # Update: bump version + hashes, then `nix flake lock --update-input nixpkgs`
+    (final: prev: {
+      moon = prev.moon.overrideAttrs (old: rec {
+        version = "2.1.1";
+        src = prev.fetchFromGitHub {
+          owner = "moonrepo";
+          repo = "moon";
+          tag = "v${version}";
+          hash = "sha256-Gd3h10ZkXCUuXR8iVIqgq4KtUsFG9+IdWBW37OJpzBU=";
+        };
+        cargoDeps = prev.rustPlatform.fetchCargoVendor {
+          inherit src;
+          name = "${old.pname}-${version}-vendor.tar.gz";
+          hash = "sha256-xmKnKJtnuHmEx8wKZU9Tq7RZ7v2uiK9rckb+s+Vuw/c=";
+        };
+      });
+    })
+
     (final: prev: rec {
       waybar-weather = final.callPackage ../pkgs/waybar-weather.nix {};
       # Helper: provide a clean cxxopts.pc to avoid broken upstream pc requiring non-existent icu-cu
