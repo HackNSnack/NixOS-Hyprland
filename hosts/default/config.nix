@@ -141,9 +141,9 @@ in
 
   # Extra Module Options
   drivers = {
-    amdgpu.enable = true;
-    intel.enable = true;
-    nvidia.enable = false;
+    amdgpu.enable = false;
+    intel.enable = false;
+    nvidia.enable = true;
     nvidia-prime = {
       enable = false;
       intelBusID = "";
