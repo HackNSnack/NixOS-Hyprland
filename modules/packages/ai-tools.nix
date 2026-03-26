@@ -1,13 +1,13 @@
 # AI assistant tools
-# Claude Code uses dedicated flake input for hourly updates
+# Claude Code uses overlay from dedicated flake for hourly updates
 # Update with: nix flake lock --update-input claude-code
+# Quick reinstall without full rebuild: nix profile install github:sadjow/claude-code-nix
 {
   pkgs,
-  inputs,
-  system,
   lib,
   ...
-}: let
+}:
+let
   # OneCLI CLI — credential vault management tool for the OneCLI HTTPS proxy gateway.
   # The gateway itself (Docker Compose stack) is installed once via:
   #   curl -fsSL onecli.sh/install | sh
@@ -20,7 +20,7 @@
       url = "https://github.com/onecli/onecli-cli/releases/download/v${version}/onecli_${version}_linux_amd64.tar.gz";
       hash = "sha256-2AQoWi7JCuneQw69XuWgfHDPMTqf2XveXxEgQfPeDmw=";
     };
-    nativeBuildInputs = [pkgs.autoPatchelfHook];
+    nativeBuildInputs = [ pkgs.autoPatchelfHook ];
     sourceRoot = ".";
     installPhase = ''
       runHook preInstall
@@ -32,13 +32,14 @@
       homepage = "https://onecli.sh";
       license = licenses.unfree;
       mainProgram = "onecli";
-      platforms = ["x86_64-linux"];
+      platforms = [ "x86_64-linux" ];
     };
   };
-in {
+in
+{
   environment.systemPackages = [
-    # Claude Code - from dedicated flake (hourly updates)
-    inputs.claude-code.packages.${system}.default
+    # Claude Code - from overlay (inputs.claude-code.overlays.default in overlays.nix)
+    pkgs.claude-code
 
     # Gemini CLI
     pkgs.gemini-cli

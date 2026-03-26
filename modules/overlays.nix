@@ -35,6 +35,10 @@
       };
     })
 
+    # Claude Code - always latest from dedicated flake
+    # Update with: nix flake lock --update-input claude-code
+    inputs.claude-code.overlays.default
+
     (final: prev: rec {
       waybar-weather = final.callPackage ../pkgs/waybar-weather.nix { };
       # Helper: provide a clean cxxopts.pc to avoid broken upstream pc requiring non-existent icu-cu
