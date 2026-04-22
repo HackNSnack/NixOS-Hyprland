@@ -2,6 +2,8 @@
 # Claude Code uses overlay from dedicated flake for hourly updates
 # Update with: nix flake lock --update-input claude-code
 # Quick reinstall without full rebuild: nix profile install github:sadjow/claude-code-nix
+# Ollama uses overlay with latest binary release (modules/overlays.nix)
+# Update: bump version + hash in modules/overlays.nix
 {
   pkgs,
   lib,
@@ -46,5 +48,8 @@ in
 
     # OneCLI CLI - HTTPS credential proxy management (see nanoclaw setup)
     onecli-cli
+
+    # Ollama for local LLMs - from overlay (latest binary with bundled CUDA)
+    pkgs.ollama
   ];
 }

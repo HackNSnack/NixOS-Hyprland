@@ -36,6 +36,7 @@ in
     ../../modules/packages/database.nix
     ../../modules/packages/communication.nix
     ../../modules/packages/ai-tools.nix
+    ../../modules/packages/cuda.nix
     ../../modules/packages/security.nix
     ../../modules/packages/misc.nix
     ../../modules/packages/browsers.nix

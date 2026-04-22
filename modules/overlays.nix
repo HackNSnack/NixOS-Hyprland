@@ -39,6 +39,45 @@
     # Update with: nix flake lock --update-input claude-code
     inputs.claude-code.overlays.default
 
+    # Ollama - latest stable binary release (bundled CUDA/Vulkan)
+    # Update: bump version + hash, find latest at https://github.com/ollama/ollama/releases
+    (final: prev: {
+      ollama = final.stdenv.mkDerivation rec {
+        pname = "ollama";
+        version = "0.20.3";
+        src = final.fetchurl {
+          url = "https://github.com/ollama/ollama/releases/download/v${version}/ollama-linux-amd64.tar.zst";
+          hash = "sha256-1nOAYN6WizxUJp1jZxxDI/3z0QW2m5iIYufwaBbHBn4=";
+        };
+        sourceRoot = ".";
+        nativeBuildInputs = [ final.autoPatchelfHook final.zstd final.addDriverRunpath final.makeWrapper ];
+        buildInputs = [ final.stdenv.cc.cc.lib final.zlib ];
+        autoPatchelfIgnoreMissingDeps = [
+          "libcuda.so.1"    # provided by NVIDIA driver at runtime
+          "libvulkan.so.1"  # provided by vulkan-loader at runtime
+        ];
+        installPhase = ''
+          runHook preInstall
+          mkdir -p $out/bin $out/lib
+          cp -r bin/ollama $out/bin/
+          cp -r lib/ollama $out/lib/
+          runHook postInstall
+        '';
+        postFixup = ''
+          # Add NVIDIA driver libs so ollama can find libcuda.so.1 at runtime
+          wrapProgram $out/bin/ollama \
+            --prefix LD_LIBRARY_PATH : "${final.addDriverRunpath.driverLink}/lib"
+        '';
+        meta = with final.lib; {
+          description = "Get up and running with large language models locally";
+          homepage = "https://ollama.com";
+          license = licenses.mit;
+          platforms = [ "x86_64-linux" ];
+          mainProgram = "ollama";
+        };
+      };
+    })
+
     (final: prev: rec {
       waybar-weather = final.callPackage ../pkgs/waybar-weather.nix { };
       # Helper: provide a clean cxxopts.pc to avoid broken upstream pc requiring non-existent icu-cu
