@@ -44,10 +44,10 @@
     (final: prev: {
       ollama = final.stdenv.mkDerivation rec {
         pname = "ollama";
-        version = "0.20.3";
+        version = "0.21.0";
         src = final.fetchurl {
           url = "https://github.com/ollama/ollama/releases/download/v${version}/ollama-linux-amd64.tar.zst";
-          hash = "sha256-1nOAYN6WizxUJp1jZxxDI/3z0QW2m5iIYufwaBbHBn4=";
+          hash = "sha256-p/xCYSmK7Kj3hfaVl4pemXAE1BTBPUz7lloQ2p9Ntuo=";
         };
         sourceRoot = ".";
         nativeBuildInputs = [ final.autoPatchelfHook final.zstd final.addDriverRunpath final.makeWrapper ];
