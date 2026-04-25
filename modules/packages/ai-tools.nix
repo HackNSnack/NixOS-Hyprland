@@ -51,5 +51,9 @@ in
 
     # Ollama for local LLMs - from overlay (latest binary with bundled CUDA)
     pkgs.ollama
+
+    # llama.cpp - from overlay (latest binary, Vulkan backend for GPU acceleration)
+    # Update: bump version + hash in modules/overlays.nix
+    pkgs.llama-cpp
   ];
 }

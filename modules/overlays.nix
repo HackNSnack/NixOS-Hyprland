@@ -39,6 +39,48 @@
     # Update with: nix flake lock --update-input claude-code
     inputs.claude-code.overlays.default
 
+    # llama.cpp - latest stable binary release (Vulkan backend, GPU-accelerated)
+    # Update: bump version + hash, find latest at https://github.com/ggml-org/llama.cpp/releases
+    # No Linux CUDA binary available upstream; Vulkan works with NVIDIA at runtime
+    (final: prev: {
+      llama-cpp = final.stdenv.mkDerivation rec {
+        pname = "llama-cpp";
+        version = "b8882";
+        src = final.fetchurl {
+          url = "https://github.com/ggml-org/llama.cpp/releases/download/${version}/llama-${version}-bin-ubuntu-vulkan-x64.tar.gz";
+          hash = "sha256-bRsPDoMTVr/xLNP9V7/IF2Jiloax7oaF3hhl9ywoV2A=";
+        };
+        sourceRoot = "llama-${version}";
+        nativeBuildInputs = [ final.autoPatchelfHook final.addDriverRunpath final.makeWrapper ];
+        buildInputs = [ final.stdenv.cc.cc.lib final.zlib final.vulkan-loader final.openssl ];
+        autoPatchelfIgnoreMissingDeps = [
+          "libcuda.so.1"    # provided by NVIDIA driver at runtime
+          "libvulkan.so.1"  # provided by vulkan-loader at runtime
+        ];
+        installPhase = ''
+          runHook preInstall
+          mkdir -p $out/bin $out/lib
+          cp llama-* $out/bin/
+          cp *.so* $out/lib/
+          # Backend plugins must be adjacent to the binaries (original release layout)
+          cp libggml-*.so $out/bin/
+          runHook postInstall
+        '';
+        postFixup = ''
+          for bin in $out/bin/llama-*; do
+            wrapProgram "$bin" \
+              --prefix LD_LIBRARY_PATH : "${final.addDriverRunpath.driverLink}/lib:${final.vulkan-loader}/lib"
+          done
+        '';
+        meta = with final.lib; {
+          description = "Inference of LLaMA model in pure C/C++";
+          homepage = "https://github.com/ggml-org/llama.cpp";
+          license = licenses.mit;
+          platforms = [ "x86_64-linux" ];
+        };
+      };
+    })
+
     # Ollama - latest stable binary release (bundled CUDA/Vulkan)
     # Update: bump version + hash, find latest at https://github.com/ollama/ollama/releases
     (final: prev: {
