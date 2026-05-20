@@ -11,5 +11,8 @@
 
     # Google Cloud
     google-cloud-sdk
+
+    # iCloud
+    icloudpd
   ];
 }
