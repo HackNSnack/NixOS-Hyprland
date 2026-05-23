@@ -6,9 +6,11 @@
   username,
   options,
   ...
-}: let
+}:
+let
   inherit (import ./variables.nix) keyboardLayout;
-in {
+in
+{
   imports = [
     ./hardware.nix
     ./users.nix
@@ -63,8 +65,8 @@ in {
     ];
 
     # OBS Virtual Cam Support
-    kernelModules = ["v4l2loopback"];
-    extraModulePackages = [pkgs.linuxPackages_zen.v4l2loopback];
+    kernelModules = [ "v4l2loopback" ];
+    extraModulePackages = [ pkgs.linuxPackages_zen.v4l2loopback ];
 
     initrd = {
       availableKernelModules = [
@@ -75,7 +77,7 @@ in {
         "usbhid"
         "sd_mod"
       ];
-      kernelModules = [];
+      kernelModules = [ ];
     };
 
     # Needed For Some Steam Games
@@ -152,7 +154,7 @@ in {
   networking = {
     networkmanager.enable = true;
     hostName = "${host}";
-    timeServers = options.networking.timeServers.default ++ ["pool.ntp.org"];
+    timeServers = options.networking.timeServers.default ++ [ "pool.ntp.org" ];
 
     # Custom hosts entries for local development
     hosts = {
@@ -254,7 +256,13 @@ in {
       enable = true;
       nssmdns4 = true;
       openFirewall = true;
+      publish = {
+        enable = true;
+        workstation = true;
+      };
     };
+
+    nscd.enable = true;
 
     # Cloudflare WARP VPN
     cloudflare-warp.enable = true;
@@ -270,7 +278,7 @@ in {
   };
 
   systemd.services.flatpak-repo = {
-    path = [pkgs.flatpak];
+    path = [ pkgs.flatpak ];
     script = ''
       flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     '';
@@ -358,8 +366,8 @@ in {
         "nix-command"
         "flakes"
       ];
-      substituters = ["https://hyprland.cachix.org"];
-      trusted-public-keys = ["hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="];
+      substituters = [ "https://hyprland.cachix.org" ];
+      trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
     };
     gc = {
       automatic = true;
@@ -392,8 +400,8 @@ in {
   # Firewall configuration
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [80];
-    allowedUDPPorts = [80];
+    allowedTCPPorts = [ 80 ];
+    allowedUDPPorts = [ 80 ];
     # Allow traffic on bridge interfaces (Docker, VMs)
     extraCommands = "iptables -I nixos-fw 1 -i br+ -j ACCEPT";
     extraStopCommands = "iptables -D nixos-fw -i br+ -j ACCEPT || true";

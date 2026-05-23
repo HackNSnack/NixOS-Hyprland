@@ -4,8 +4,7 @@
 # ============================================================
 # OH-MY-POSH
 # ============================================================
-export POSH="$HOME/.oh-my-posh"
-eval "$(oh-my-posh init zsh --config ~/jandedobbeleer.omp.json)"
+# Configured via NixOS Home Manager (modules/home/cli/oh-my-posh.nix)
 
 # ============================================================
 # PLUGINS (if using oh-my-zsh)
@@ -57,8 +56,17 @@ _fzf_compgen_dir() {
     fd --type=d --hidden --exclude .git . "$1"
 }
 
+# Configure delta to use fzf preview window width dynamically
+export FZF_GIT_PAGER='delta --width=${FZF_PREVIEW_COLUMNS}'
+
 # FZF git integration (requires fzf-git.sh in home directory)
 [ -f ~/fzf-git.sh ] && source ~/fzf-git.sh
+
+# Make preview wider (left column narrower)
+_fzf_git_fzf() {
+    fzf --preview-window 'right,75%' "$@"
+}
+__fzf_git_fzf='_fzf_git_fzf'
 
 # Preview configuration
 show_file_or_dir_preview="if [ -d {} ]; then eza --tree --color=always {} | head -200; else bat -n --color=always --line-range :500 {}; fi"
@@ -100,3 +108,11 @@ alias nix_del_old="sudo nix-env --delete-generations -p /nix/var/nix/profiles/sy
 # ============================================================
 # Display system info on terminal launch
 fastfetch -c $HOME/.config/fastfetch/config-compact.jsonc
+
+# Claude differentiator
+alias claude-ardoq="CLAUDE_CONFIG_DIR=~/.claude-ardoq claude"
+alias claude-nl="DISABLE_TELEMERY=1 ANTHROPIC_BASE_URL="https://llm.netlight.ai/" ANTHROPIC_AUTH_TOKEN="PUT_KEY_HERE" ANTHROPIC_MODEL="claude-latest" CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1 ANTHROPIC_MODEL="claude-opus-4-6" claude --model claude-opus-4-6"
+
+export POSH="$HOME/.oh-my-posh"                                                                                                                                                                                                                                                                                                     
+eval "$(oh-my-posh init zsh --config ~/jandedobbeleer.omp.json)"
+
