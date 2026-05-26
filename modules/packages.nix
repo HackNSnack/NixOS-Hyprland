@@ -168,7 +168,7 @@ in
     git
     google-chrome
     gnome-system-monitor
-    fastfetch
+    #fastfetch
     jq
     gcc
     git
@@ -281,7 +281,7 @@ in
     ipfetch
     pfetch
     smartmontools
-    brightnessctl
+    # light removed from nixpkgs, use brightnessctl or acpilight instead
     lm_sensors
     mission-center
     fastfetch
