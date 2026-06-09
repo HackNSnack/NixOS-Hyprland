@@ -49,6 +49,9 @@ in
 
     # System
     ../../modules/nix-ld.nix
+
+    # Services
+    ../../modules/services/nanoclaw.nix
   ];
 
   # BOOT related stuff
