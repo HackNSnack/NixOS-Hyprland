@@ -4,5 +4,6 @@
     obsidian        # Note-taking
     libqalculate    # Calculator library
     rofi-calc       # Rofi calculator plugin
+    freecad         # Parametric 3D CAD modeler
   ];
 }

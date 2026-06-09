@@ -13,5 +13,8 @@
 
     # Pre-commit niche package
     gitleaks
+
+    # 3D printing
+    bambu-studio
   ];
 }
