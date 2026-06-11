@@ -13,7 +13,7 @@
 # ┌──────────────────────────────────────────────────────────────────────────┐
 # │ One-time bootstrap (run once after the first nixos-rebuild switch)       │
 # │                                                                          │
-# │ 1. Install the OneCLI gateway — drops /opt/onecli/docker-compose.yml:    │
+# │ 1. Install the OneCLI gateway — drops ~/.onecli/docker-compose.yml:      │
 # │      curl -fsSL onecli.sh/install | sh                                   │
 # │                                                                          │
 # │ 2. Build the agent Docker image (~5–10 min first time):                  │
@@ -23,7 +23,8 @@
 # │ 3. Register your API credential with OneCLI.  The project .env sets      │
 # │    ANTHROPIC_BASE_URL=https://openrouter.ai/api/v1, so the host-pattern  │
 # │    must match OpenRouter, not api.anthropic.com:                         │
-# │      onecli config set api-host http://localhost:10254                   │
+# │      onecli config set api-host http://127.0.0.1:10254                  │
+# │      #   --format '{{range .IPAM.Config}}{{.Gateway}}{{end}}'            │
 # │      onecli secrets create \                                             │
 # │        --name OpenRouter --type anthropic \                              │
 # │        --value sk-or-v1-... \                                            │
@@ -44,7 +45,6 @@
   pkgs,
   config,
   username,
-  lib,
   ...
 }:
 let
@@ -76,6 +76,68 @@ let
     }
   );
 
+  # ── OneCLI paths ─────────────────────────────────────────────────────────
+  # The OneCLI installer places files in ~/.onecli/, not /opt/onecli/ as
+  # older documentation suggested.
+  onecliDir = "/home/${username}/.onecli";
+
+  # Use explicit IPv4 127.0.0.1 — "localhost" resolves to [::1] (IPv6) on this
+  # system, which is not listening. 127.0.0.1 is stable regardless of Docker
+  # network configuration.
+  # NOTE: this URL is used by the nanoclaw HOST PROCESS to register/wake
+  # containers. Agent containers use a separate proxy URL (port 10255) injected
+  # by OneCLI as HTTPS_PROXY — see onecliOverride below.
+  onecliUrl = "http://127.0.0.1:10254";
+
+  # ── OneCLI Docker Compose configuration ──────────────────────────────────
+  # Problem: docker-compose.yml uses ${ONECLI_BIND_HOST:-127.0.0.1} for all
+  # port bindings.  The OneCLI SDK's applyContainerConfig() adds
+  # --add-host host.docker.internal:host-gateway to every docker run, so
+  # containers reach the host at 172.17.0.1 (Docker bridge gateway).
+  # With loopback-only bindings, the HTTPS proxy on port 10255 is therefore
+  # unreachable from inside agent containers (fetch failed / API retry loop).
+  #
+  # Fix (two files, both deployed via L+ tmpfiles symlinks):
+  #
+  # 1. ~/.onecli/.env — sets ONECLI_BIND_HOST=0.0.0.0 so docker-compose.yml
+  #    computes 0.0.0.0 port bindings.  This is the intended variable for this
+  #    purpose (added in onecli/onecli#153).  Docker Compose reads .env from
+  #    the same directory as docker-compose.yml for variable substitution.
+  #
+  # 2. docker-compose.override.yml — corrects APP_URL and GATEWAY_API_URL
+  #    back to 127.0.0.1 so the web UI still works (browsers cannot connect
+  #    to 0.0.0.0).  environment: is a mapping — override values REPLACE base
+  #    values for the same key.  No ports: section here; ports: is an array
+  #    and Docker Compose APPENDS arrays across files, which would duplicate
+  #    bindings and cause "address already in use" errors.
+  onecliEnv = pkgs.writeText "onecli-dot-env" ''
+    # ~/.onecli/.env — Docker Compose variable substitution.
+    # Managed by ~/NixOS-Hyprland/modules/services/nanoclaw.nix.
+    #
+    # Bind to all interfaces so agent containers can reach the HTTPS proxy
+    # at host.docker.internal:10255 (resolves to 172.17.0.1 via --add-host
+    # injected by the OneCLI SDK).  See onecli/onecli#153.
+    ONECLI_BIND_HOST=0.0.0.0
+  '';
+
+  onecliOverride = pkgs.writeText "docker-compose.override.yml" ''
+    # docker-compose.override.yml — URL fix
+    # Managed by ~/NixOS-Hyprland/modules/services/nanoclaw.nix.
+    # Docker Compose auto-merges this with docker-compose.yml.
+    #
+    # ONECLI_BIND_HOST=0.0.0.0 (set in .env) makes port bindings use all
+    # interfaces but also causes APP_URL/GATEWAY_API_URL to be constructed as
+    # http://0.0.0.0:... which browsers cannot connect to.  Correct them back
+    # to 127.0.0.1 here.  environment: is a mapping — these values replace
+    # the base file values for the same keys (unlike ports: which appends).
+
+    services:
+      onecli:
+        environment:
+          APP_URL: http://127.0.0.1:10254
+          GATEWAY_API_URL: http://127.0.0.1:10255
+  '';
+
   # ── Convenience scripts ───────────────────────────────────────────────────
 
   # nanoclaw-start: bring up the full stack in dependency order.
@@ -85,14 +147,14 @@ let
     set -euo pipefail
 
     # Guard against running before the OneCLI installer has been run.
-    if [ ! -f /opt/onecli/docker-compose.yml ]; then
-      echo "ERROR: /opt/onecli/docker-compose.yml not found."
+    if [ ! -f ${onecliDir}/docker-compose.yml ]; then
+      echo "ERROR: ${onecliDir}/docker-compose.yml not found."
       echo "Run the OneCLI installer first: curl -fsSL onecli.sh/install | sh"
       exit 1
     fi
 
     echo "Starting OneCLI gateway..."
-    cd /opt/onecli && ${pkgs.docker}/bin/docker compose up -d
+    cd ${onecliDir} && ${pkgs.docker}/bin/docker compose up -d
 
     echo "Starting nanoclaw service..."
     systemctl --user start ${serviceName}
@@ -112,12 +174,62 @@ let
     echo "Stopping nanoclaw service..."
     systemctl --user stop ${serviceName} || true
 
-    if [ -f /opt/onecli/docker-compose.yml ]; then
+    if [ -f ${onecliDir}/docker-compose.yml ]; then
       echo "Stopping OneCLI gateway..."
-      cd /opt/onecli && ${pkgs.docker}/bin/docker compose down
+      cd ${onecliDir} && ${pkgs.docker}/bin/docker compose down
     fi
 
     echo "Done."
+  '';
+
+  # nanoclaw-rebuild: rebuild all three layers of the stack in order.
+  # 1. OneCLI Docker Compose — pull fresh images and recreate the gateway
+  #    containers.  Uses --force-recreate so the containers pick up any image
+  #    changes even if the compose spec itself is unchanged.
+  # 2. nanoclaw pnpm dist — runs `pnpm run build` in the project root, which
+  #    compiles TypeScript → dist/index.js (the target of ExecStart above).
+  # 3. nanoclaw Docker image — rebuilds nanoclaw-agent-v2-<slug>:latest from
+  #    <projectRoot>/container/Dockerfile.  Agent containers spawned after the
+  #    rebuild will use the new image; already-running containers are unaffected
+  #    until they exit naturally.
+  #
+  # The running service is NOT stopped/restarted automatically — use
+  # `nanoclaw-restart` (or nanoclaw-stop / nanoclaw-start) after this command
+  # to bring up the new dist and pick up the rebuilt Docker image.
+  nanoclaw-rebuild = pkgs.writeShellScriptBin "nanoclaw-rebuild" ''
+    set -euo pipefail
+
+    # Guard against running before the OneCLI installer has been run.
+    if [ ! -f ${onecliDir}/docker-compose.yml ]; then
+      echo "ERROR: ${onecliDir}/docker-compose.yml not found."
+      echo "Run the OneCLI installer first: curl -fsSL onecli.sh/install | sh"
+      exit 1
+    fi
+
+    echo "==> [1/3] Rebuilding OneCLI Docker Compose stack..."
+    cd ${onecliDir} \
+      && ${pkgs.docker}/bin/docker compose pull \
+      && ${pkgs.docker}/bin/docker compose up -d --force-recreate
+
+    echo ""
+    echo "==> [2/3] Rebuilding nanoclaw pnpm dist..."
+    cd ${projectRoot} && pnpm run build
+
+    echo ""
+    echo "==> [3/3] Rebuilding nanoclaw Docker container image..."
+    cd ${projectRoot}/container \
+      && ${pkgs.docker}/bin/docker build -t nanoclaw-agent-v2-${installSlug}:latest .
+
+    echo ""
+    echo "Rebuild complete.  Run 'nanoclaw-restart' to apply the new build."
+  '';
+
+  # nanoclaw-restart: stop the full stack then bring it back up.
+  # Delegates entirely to nanoclaw-stop / nanoclaw-start so the dependency
+  # order (OneCLI gateway before nanoclaw service) is always respected.
+  nanoclaw-restart = pkgs.writeShellScriptBin "nanoclaw-restart" ''
+    set -euo pipefail
+    ${nanoclaw-stop}/bin/nanoclaw-stop && ${nanoclaw-start}/bin/nanoclaw-start
   '';
 
   # ncl: thin wrapper around bin/ncl in the project directory.
@@ -222,6 +334,19 @@ in
     # SQLite database directory.  src/config.ts resolves DATA_DIR as
     # path.resolve(process.cwd(), 'data') → <projectRoot>/data at runtime.
     "d ${projectRoot}/data 0755 ${username} users -"
+
+    # Ensure ~/.onecli/ exists before writing into it.  The OneCLI installer
+    # creates it, but the 'd' rule is harmless if it already exists.
+    "d /home/${username}/.onecli 0755 ${username} users -"
+
+    # ~/.onecli/.env — sets ONECLI_BIND_HOST=0.0.0.0 so port bindings use all
+    # interfaces.  Docker Compose reads this file for variable substitution.
+    "L+ /home/${username}/.onecli/.env - - - - ${onecliEnv}"
+
+    # docker-compose.override.yml — corrects APP_URL/GATEWAY_API_URL back to
+    # 127.0.0.1 (environment mapping merge replaces; no ports section to avoid
+    # array-append duplication).
+    "L+ /home/${username}/.onecli/docker-compose.override.yml - - - - ${onecliOverride}"
   ];
 
   # ── System packages ───────────────────────────────────────────────────────
@@ -231,6 +356,8 @@ in
   environment.systemPackages = [
     nanoclaw-start
     nanoclaw-stop
+    nanoclaw-rebuild
+    nanoclaw-restart
     ncl
   ];
 }
