@@ -1,8 +1,14 @@
-{ pkgs
-, inputs
-, host
-, ...
-}: {
+{
+  pkgs,
+  config,
+  inputs,
+  host,
+  ...
+}:
+let
+  hasNvidia = config.drivers.nvidia.enable || config.drivers.nvidia-prime.enable;
+in
+{
 
   services.power-profiles-daemon.enable = true;
 
@@ -18,7 +24,7 @@
     };
     zsh.enable = true;
     firefox.enable = false;
-    waybar.enable = false; #started by Hyprland dotfiles. Enabling causes two waybars
+    waybar.enable = false; # started by Hyprland dotfiles. Enabling causes two waybars
     hyprlock.enable = true;
     dconf.enable = true;
     seahorse.enable = true;
@@ -51,7 +57,7 @@
     alejandra
     onefetch
     atop
-    go #needed for waybar-weather compile 
+    go # needed for waybar-weather compile
 
     # Update flkake script
     (pkgs.writeShellScriptBin "update" ''
@@ -63,6 +69,16 @@
     (pkgs.writeShellScriptBin "rebuild" ''
       cd ~/NixOS-Hyprland
       nh os switch -H ${host} .
+    '')
+
+    # Like rebuild, but stages the config for next boot instead of hot-switching.
+    # Use this when the switch script warns about critical component changes
+    # (e.g. dbus-implementation, systemd, kernel) to avoid breaking the live session.
+    (pkgs.writeShellScriptBin "rebuild-boot" ''
+      cd ~/NixOS-Hyprland
+      nh os boot -H ${host} .
+      echo ""
+      echo "Config staged. Run 'reboot' when ready."
     '')
 
     # clean up old generations
@@ -120,14 +136,14 @@
     bc
     brightnessctl
     (btop.override {
-      cudaSupport = true;
-      rocmSupport = true;
+      cudaSupport = hasNvidia;
+      rocmSupport = config.drivers.amdgpu.enable;
     })
     bottom
     baobab
     btrfs-progs
     cmatrix
-    swaylock-plugin  # Matrix-style lock screen with animated backgrounds
+    swaylock-plugin # Matrix-style lock screen with animated backgrounds
     distrobox
     dua
     duf
@@ -173,12 +189,19 @@
     libsForQt5.qtstyleplugin-kvantum # kvantum
     libsForQt5.qt5ct
     (mpv.override { scripts = [ mpvScripts.mpris ]; }) # with tray
-    nvtopPackages.full
+    # nvtopPackages: full (NVIDIA+CUDA), amd, or intel — driven by drivers.* flags in host config
+    (
+      if hasNvidia then
+        nvtopPackages.full
+      else if config.drivers.amdgpu.enable then
+        nvtopPackages.amd
+      else
+        nvtopPackages.intel
+    )
     openssl # required by Rainbow borders
     pciutils
     networkmanagerapplet
     #nitrogen
-    #nvtopPackages.full
     pamixer
     pavucontrol
     playerctl
@@ -192,9 +215,9 @@
     rofi
     slurp
     swappy
-    serie #git cli tool
+    serie # git cli tool
     swaynotificationcenter
-    swww
+    awww
     unzip
     wallust
     wdisplays
@@ -207,7 +230,7 @@
     (yazi.override {
       _7zz = _7zz-rar; # Support for RAR extraction
     })
-    xdg-user-dirs #needed for copy.sh 
+    xdg-user-dirs # needed for copy.sh
     yt-dlp
 
     (inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default)
@@ -249,7 +272,7 @@
     cpufetch
     cpuid
     cpu-x
-    cyme #list USB devices - very handy
+    cyme # list USB devices - very handy
     gdu # Dusk usage
     glances # system monitor tool
     gping # Graphical ping tool
@@ -258,10 +281,10 @@
     ipfetch
     pfetch
     smartmontools
-    light
+    brightnessctl
     lm_sensors
     mission-center
-    neofetch
+    fastfetch
 
     # Development related
     luarocks

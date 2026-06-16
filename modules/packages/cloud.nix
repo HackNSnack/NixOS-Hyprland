@@ -5,7 +5,7 @@
     (azure-cli.withExtensions [
       azure-cli.extensions.aks-preview
       azure-cli.extensions.webapp
-      azure-cli.extensions.redisenterprise
+      # azure-cli.extensions.redisenterprise
     ])
     azuredatastudio  # Azure SQL GUI tool
 

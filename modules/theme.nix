@@ -3,7 +3,16 @@
   lib,
   config,
   ...
-}: {
+}:
+{
+  # Suppress catppuccin/nix migration warning:
+  # `catppuccin.enable` will become a global on/off toggle; `catppuccin.autoEnable`
+  # will control per-port auto-enrollment. Set autoEnable = false to preserve the
+  # current opt-in behaviour (no ports themed automatically).
+  catppuccin = {
+    enable = true;
+    autoEnable = false;
+  };
   # Install themes/cursors that we reference
   environment.systemPackages = with pkgs; [
     adwaita-icon-theme
@@ -44,7 +53,7 @@
   # Rebuild the dconf database at activation to apply system defaults
   system.activationScripts.dconfUpdate = {
     # Ensure /etc is populated (including /etc/dconf/...) before running dconf update
-    deps = ["etc"];
+    deps = [ "etc" ];
     text = ''
       if [ -x ${pkgs.dconf}/bin/dconf ]; then
         if [ -d /etc/dconf/db ]; then

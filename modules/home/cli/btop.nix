@@ -1,9 +1,14 @@
-{pkgs, ...}: {
+# osConfig is the NixOS config — available because home-manager runs as a NixOS module
+{ pkgs, osConfig, ... }:
+let
+  hasNvidia = osConfig.drivers.nvidia.enable || osConfig.drivers.nvidia-prime.enable;
+in
+{
   programs.btop = {
     enable = true;
     package = pkgs.btop.override {
-      rocmSupport = true;
-      cudaSupport = true;
+      cudaSupport = hasNvidia;
+      rocmSupport = osConfig.drivers.amdgpu.enable;
     };
     settings = {
       vim_keys = true;

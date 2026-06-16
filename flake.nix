@@ -2,9 +2,9 @@
   description = "KooL's NixOS-Hyprland";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
 
-    home-manager.url = "github:nix-community/home-manager/master";
+    home-manager.url = "github:nix-community/home-manager/release-26.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     #hyprland.url = "github:hyprwm/Hyprland"; # hyprland development
@@ -31,6 +31,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Declarative Flatpak package management
+    nix-flatpak.url = "github:gmodena/nix-flatpak";
+
     quickshell = {
       url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -38,11 +41,12 @@
   };
 
   outputs =
-    inputs @ { self
-    , nixpkgs
-    , ags
-    , alejandra
-    , ...
+    inputs@{
+      self,
+      nixpkgs,
+      ags,
+      alejandra,
+      ...
     }:
     let
       system = "x86_64-linux";
@@ -93,6 +97,7 @@
             ./modules/ly.nix # ly greater with matrix animation
             ./modules/nh.nix # nix helper
             inputs.catppuccin.nixosModules.catppuccin
+            inputs.nix-flatpak.nixosModules.nix-flatpak
             # Integrate Home Manager as a NixOS module
             inputs.home-manager.nixosModules.home-manager
             {
@@ -100,7 +105,14 @@
               home-manager.useUserPackages = true;
               home-manager.backupFileExtension = "hm-bak";
 
-              home-manager.extraSpecialArgs = { inherit inputs system username host; };
+              home-manager.extraSpecialArgs = {
+                inherit
+                  inputs
+                  system
+                  username
+                  host
+                  ;
+              };
 
               home-manager.users.${username} = {
                 home.username = username;

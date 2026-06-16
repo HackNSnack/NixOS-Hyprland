@@ -50,7 +50,7 @@ in {
       syntaxHighlighting.enable = true;
 
       promptInit = ''
-        fastfetch -c $HOME/.config/fastfetch/config-compact.jsonc
+        fastfetch -c $HOME/.config/fastfetch/kooldots-nixos.jsonc
 
         #pokemon colorscripts like. Make sure to install krabby package
         #krabby random --no-mega --no-gmax --no-regional --no-title -s;

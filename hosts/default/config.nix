@@ -234,7 +234,20 @@ in
     nfs.server.enable = true;
 
     openssh.enable = true;
-    flatpak.enable = true;
+
+    # Declarative Flatpak — nix-flatpak installs/removes these on every
+    # nixos-rebuild switch, so the system is fully reproducible.
+    # To add more apps: look up the App ID on https://flathub.org and add
+    # another { appId = "..."; origin = "flathub"; } entry, then rebuild.
+    flatpak = {
+      enable = true;
+      packages = [
+        {
+          appId = "com.bambulab.BambuStudio";
+          origin = "flathub";
+        }
+      ];
+    };
 
     blueman.enable = true;
 
@@ -364,20 +377,58 @@ in
   # Cachix, Optimization settings and garbage collection automation
   nix = {
     settings = {
-      auto-optimise-store = true;
       experimental-features = [
         "nix-command"
         "flakes"
       ];
       substituters = [ "https://hyprland.cachix.org" ];
       trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
+
+      # ── Build parallelism ───────────────────────────────────────────────────
+      # Default "auto" = one job per CPU thread (12 on your i7-1355U).
+      # Each heavy derivation (rustc, clang, dotnet, azure-cli...) can eat
+      # 2-4 GB on its own, so 12 simultaneous jobs easily blows past 32 GB.
+      # 4 jobs × 3 cores each = all 12 threads utilised, RAM stays sane.
+      max-jobs = 4;
+      cores = 3;
     };
+
+    # ── Daemon scheduling ───────────────────────────────────────────────────
+    # `nice nix build` has zero effect in multi-user mode — the daemon runs
+    # as root in a separate process tree. These are the real knobs.
+    # "idle" = builds only consume CPU/IO when nothing else wants it,
+    # so the desktop stays completely responsive during a rebuild.
+    daemonCPUSchedPolicy = "idle";
+    daemonIOSchedClass = "idle";
+
+    # ── Store optimisation ──────────────────────────────────────────────────
+    # auto-optimise-store = true (old setting) runs a hardlink-dedup scan
+    # after *every single derivation build* — very slow on an 85 GB store.
+    # The scheduled job below does the exact same thing once a week instead.
+    optimise = {
+      automatic = true;
+      dates = [ "weekly" ];
+    };
+
     gc = {
       automatic = true;
       dates = "weekly";
       options = "--delete-older-than 7d";
     };
   };
+
+  # ── Disk swap safety net ────────────────────────────────────────────────
+  # zram (your current setup) compresses pages *back into RAM* — it helps
+  # under normal pressure but provides zero extra headroom when RAM is truly
+  # exhausted and the OOM killer starts firing. 8 GB on disk is cheap
+  # insurance that's only ever touched in worst-case scenarios.
+  # hardware.nix has swapDevices = [] which NixOS merges with this, no conflict.
+  swapDevices = [
+    {
+      device = "/var/lib/swapfile";
+      size = 8 * 1024; # MiB → 8 GB
+    }
+  ];
 
   # Virtualization / Containers
   virtualisation.libvirtd.enable = false;

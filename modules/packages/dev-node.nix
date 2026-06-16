@@ -1,9 +1,10 @@
 # Node.js / TypeScript development environment
-{ pkgs, ... }: {
+{ pkgs, ... }:
+{
   environment.systemPackages = with pkgs; [
-    nodejs
+    nodejs_22
     pnpm
-    prettierd   # Prettier daemon for faster formatting
+    prettierd # Prettier daemon for faster formatting
     # yarn      # Uncomment if you prefer Yarn
   ];
 }

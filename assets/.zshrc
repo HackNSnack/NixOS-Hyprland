@@ -107,7 +107,7 @@ alias nix_del_old="sudo nix-env --delete-generations -p /nix/var/nix/profiles/sy
 # STARTUP
 # ============================================================
 # Display system info on terminal launch
-fastfetch -c $HOME/.config/fastfetch/config-compact.jsonc
+fastfetch -c $HOME/.config/fastfetch/kooldots-nixos.jsonc
 
 # Claude differentiator
 alias claude-ardoq="CLAUDE_CONFIG_DIR=~/.claude-ardoq claude"

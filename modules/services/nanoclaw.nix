@@ -262,7 +262,7 @@ in
       # addon (.node file).  If the Node package is bumped in a future
       # nixpkgs update, re-run `pnpm install` in the project root so
       # better-sqlite3 is recompiled against the new version.
-      ExecStart = "${pkgs.nodejs}/bin/node ${projectRoot}/dist/index.js";
+      ExecStart = "${pkgs.nodejs_22}/bin/node ${projectRoot}/dist/index.js";
       WorkingDirectory = projectRoot;
 
       # Restart on crash (e.g. unhandled rejection) but not on intentional
@@ -283,7 +283,7 @@ in
       #       Pulled from time.timeZone so it stays in sync with the system.
       Environment = [
         "HOME=/home/${username}"
-        "PATH=${pkgs.nodejs}/bin:${pkgs.docker}/bin:/run/wrappers/bin:/run/current-system/sw/bin"
+        "PATH=${pkgs.nodejs_22}/bin:${pkgs.docker}/bin:/run/wrappers/bin:/run/current-system/sw/bin"
         "TZ=${config.time.timeZone}"
       ];
 

@@ -1,8 +1,9 @@
 # Privacy and security applications
-{ pkgs, ... }: {
+{ pkgs, ... }:
+{
   environment.systemPackages = with pkgs; [
     # Proton suite
-    protonvpn-gui
+    proton-vpn
     proton-pass
     protonmail-desktop
     git-credential-manager
