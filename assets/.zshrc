@@ -116,3 +116,15 @@ alias claude-nl="DISABLE_TELEMERY=1 ANTHROPIC_BASE_URL="https://llm.netlight.ai/
 export POSH="$HOME/.oh-my-posh"                                                                                                                                                                                                                                                                                                     
 eval "$(oh-my-posh init zsh --config ~/jandedobbeleer.omp.json)"
 
+
+# pnpm
+export PNPM_HOME="/home/mathipe/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+case ":$PATH:" in
+  *":$PNPM_HOME/bin:"*) ;;
+  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
+esac
+# pnpm end
