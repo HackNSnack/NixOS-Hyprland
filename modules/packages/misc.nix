@@ -1,5 +1,6 @@
 # Miscellaneous packages
-{ pkgs, ... }: {
+{ pkgs, ... }:
+{
   environment.systemPackages = with pkgs; [
     cloudflare-warp
     moon
