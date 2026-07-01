@@ -1,9 +1,10 @@
 { inputs, ... }:
 {
   nixpkgs.overlays = [
-    # Neovim nightly - always latest stable builds
-    # Update with: nix flake lock --update-input neovim-nightly
-    inputs.neovim-nightly.overlays.default
+    # Neovim nightly overlay disabled: it tracks neovim's master branch
+    # (true nightly builds), not stable releases, and broke plugins.
+    # nixpkgs' own neovim is used instead. To re-enable nightly:
+    # inputs.neovim-nightly.overlays.default
 
     # Moon v2.x - nixpkgs 26.05 ships 1.x; use the official pre-built musl
     # binary instead of compiling from source (Rust builds eat several GB of RAM).
