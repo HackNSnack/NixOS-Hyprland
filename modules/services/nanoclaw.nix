@@ -182,20 +182,30 @@ let
     echo "Done."
   '';
 
-  # nanoclaw-rebuild: rebuild all three layers of the stack in order.
+  # nanoclaw-rebuild: rebuild all layers of the stack, then cycle every
+  # agent group's running container onto the new image.
   # 1. OneCLI Docker Compose — pull fresh images and recreate the gateway
   #    containers.  Uses --force-recreate so the containers pick up any image
   #    changes even if the compose spec itself is unchanged.
   # 2. nanoclaw pnpm dist — runs `pnpm run build` in the project root, which
   #    compiles TypeScript → dist/index.js (the target of ExecStart above).
+  #    This does NOT take effect until the host process itself restarts —
+  #    run `nanoclaw-restart` afterward if you changed host-side (src/) code.
   # 3. nanoclaw Docker image — rebuilds nanoclaw-agent-v2-<slug>:latest from
-  #    <projectRoot>/container/Dockerfile.  Agent containers spawned after the
-  #    rebuild will use the new image; already-running containers are unaffected
-  #    until they exit naturally.
-  #
-  # The running service is NOT stopped/restarted automatically — use
-  # `nanoclaw-restart` (or nanoclaw-stop / nanoclaw-start) after this command
-  # to bring up the new dist and pick up the rebuilt Docker image.
+  #    <projectRoot>/container/Dockerfile (the shared base every group's
+  #    container ultimately runs from, directly or via a derived image).
+  # 4. Cycle every agent group — discovers all groups via `ncl groups list`
+  #    (no hardcoded id) and restarts each so it actually picks up the new
+  #    image + current CLAUDE.local.md, rebuilding a per-group derived image
+  #    first for any group with custom apt/npm packages. This KILLS whatever
+  #    that group's container is doing right now — an in-flight tool call,
+  #    an active agent-browser session, a message mid-processing — for every
+  #    group, every time you rebuild. Conversation continuity survives (the
+  #    session continuation id is persisted per-turn), but a message that was
+  #    actively being answered when killed gets reprocessed from scratch on
+  #    respawn, which can produce a duplicate/inconsistent reply if a partial
+  #    answer already went out. Accept that tradeoff deliberately, not as a
+  #    surprise — don't run this mid-conversation if you can avoid it.
   nanoclaw-rebuild = pkgs.writeShellScriptBin "nanoclaw-rebuild" ''
     set -euo pipefail
 
@@ -206,22 +216,53 @@ let
       exit 1
     fi
 
-    echo "==> [1/3] Rebuilding OneCLI Docker Compose stack..."
+    echo "==> [1/4] Rebuilding OneCLI Docker Compose stack..."
     cd ${onecliDir} \
       && ${pkgs.docker}/bin/docker compose pull \
       && ${pkgs.docker}/bin/docker compose up -d --force-recreate
 
     echo ""
-    echo "==> [2/3] Rebuilding nanoclaw pnpm dist..."
+    echo "==> [2/4] Rebuilding nanoclaw pnpm dist..."
     cd ${projectRoot} && pnpm run build
 
     echo ""
-    echo "==> [3/3] Rebuilding nanoclaw Docker container image..."
+    echo "==> [3/4] Rebuilding nanoclaw Docker container image..."
     cd ${projectRoot}/container \
       && ${pkgs.docker}/bin/docker build -t nanoclaw-agent-v2-${installSlug}:latest .
 
     echo ""
-    echo "Rebuild complete.  Run 'nanoclaw-restart' to apply the new build."
+    echo "==> [4/4] Cycling agent group containers onto the new image..."
+    # Requires the nanoclaw host service to be up (ncl talks to it over a
+    # Unix socket). If it's down, skip silently — new containers pick up the
+    # fresh image on next spawn regardless, no running container to cycle.
+    if systemctl --user is-active --quiet ${serviceName}; then
+      ${ncl}/bin/ncl groups list --json \
+        | ${pkgs.jq}/bin/jq -r '.data[].id' \
+        | while read -r id; do
+            # Per-group derived images (FROM the shared base + custom apt/npm
+            # packages, built by `ncl groups restart --rebuild`) are a separate
+            # baked artifact from whenever they were last built — rebuilding
+            # the shared base above does NOT retroactively update them. Only
+            # rebuild the derived layer for groups that actually have one
+            # (image_tag set); `--rebuild` throws "No packages to install" for
+            # any group with no custom packages configured, so it must not be
+            # applied unconditionally.
+            image_tag=$(${ncl}/bin/ncl groups config get --id "$id" --json | ${pkgs.jq}/bin/jq -r '.data.image_tag // empty')
+            if [ -n "$image_tag" ]; then
+              echo "    - $id: custom image ($image_tag) — rebuilding on the new base"
+              ${ncl}/bin/ncl groups restart --id "$id" --rebuild
+            else
+              echo "    - $id: shared base image — restarting"
+              ${ncl}/bin/ncl groups restart --id "$id"
+            fi
+          done
+    else
+      echo "    nanoclaw service is not running — skipping (nothing live to cycle)."
+    fi
+
+    echo ""
+    echo "Rebuild complete.  Every running agent group container now has the new image."
+    echo "If you also changed host-side code (src/), run 'nanoclaw-restart' to apply the new dist build."
   '';
 
   # nanoclaw-restart: stop the full stack then bring it back up.
