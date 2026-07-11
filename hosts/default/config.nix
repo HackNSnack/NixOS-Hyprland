@@ -457,8 +457,16 @@ in
     allowedTCPPorts = [ 80 ];
     allowedUDPPorts = [ 80 ];
     # Allow traffic on bridge interfaces (Docker, VMs)
-    extraCommands = "iptables -I nixos-fw 1 -i br+ -j ACCEPT";
-    extraStopCommands = "iptables -D nixos-fw -i br+ -j ACCEPT || true";
+    # Note: "br+" only matches Docker's custom-network bridges (br-<hash>);
+    # the default Docker bridge is always named "docker0" and needs its own rule.
+    extraCommands = ''
+      iptables -I nixos-fw 1 -i br+ -j ACCEPT
+      iptables -I nixos-fw 1 -i docker0 -j ACCEPT
+    '';
+    extraStopCommands = ''
+      iptables -D nixos-fw -i br+ -j ACCEPT || true
+      iptables -D nixos-fw -i docker0 -j ACCEPT || true
+    '';
   };
 
   # This value determines the NixOS release from which the default
