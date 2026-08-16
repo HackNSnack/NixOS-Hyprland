@@ -52,6 +52,9 @@ in
 
     # Services
     ../../modules/services/nanoclaw.nix
+
+    # Jellyfin media server (shared parameterized module; per-host settings below)
+    ../../modules/jellyfin.nix
   ];
 
   # BOOT related stuff
@@ -153,6 +156,17 @@ in
   vm.guest-services.enable = false;
   local.hardware-clock.enable = false;
 
+  # Jellyfin media server — laptop (Intel Iris Xe) test install, Tier 1.
+  # VAAPI hardware transcode via the iGPU render node. Swap to the NVENC
+  # block (see nixos/jellyfin.nix header) when running this flake on the desktop.
+  jellyfin-media = {
+    user = "${username}";
+    mediaDir = "/home/${username}/Prosjekter/Personal/jellyfin-media-server/media";
+    accel.type = "vaapi";
+    accel.device = "/dev/dri/renderD128";
+    intelMediaDriver = true;
+  };
+
   # networking
   networking = {
     networkmanager.enable = true;
@@ -244,6 +258,24 @@ in
       packages = [
         {
           appId = "com.bambulab.BambuStudio";
+          origin = "flathub";
+        }
+        # Heavy GUI apps moved out of the Nix closure to shrink rebuilds.
+        # Removed from modules/packages/*; revert there if you drop these.
+        {
+          appId = "org.freecad.FreeCAD";
+          origin = "flathub";
+        }
+        {
+          appId = "us.zoom.Zoom";
+          origin = "flathub";
+        }
+        {
+          appId = "com.obsproject.Studio";
+          origin = "flathub";
+        }
+        {
+          appId = "com.github.IsmaelMartinez.teams_for_linux";
           origin = "flathub";
         }
       ];
