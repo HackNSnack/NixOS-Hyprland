@@ -6,50 +6,7 @@
     # nixpkgs' own neovim is used instead. To re-enable nightly:
     # inputs.neovim-nightly.overlays.default
 
-    # Ollama - latest stable binary release (CPU-only build, no NVIDIA needed)
-    # Binary bundles CUDA/Vulkan runtime stubs; autoPatchelfIgnoreMissingDeps
-    # lets it build on CPU-only systems. GPU acceleration is picked up
-    # automatically when an NVIDIA/Vulkan driver is present.
-    # Update: bump version + hash, find latest at https://github.com/ollama/ollama/releases
-    (final: prev: {
-      ollama = final.stdenv.mkDerivation rec {
-        pname = "ollama";
-        version = "0.20.3";
-        src = final.fetchurl {
-          url = "https://github.com/ollama/ollama/releases/download/v${version}/ollama-linux-amd64.tar.zst";
-          hash = "sha256-1nOAYN6WizxUJp1jZxxDI/3z0QW2m5iIYufwaBbHBn4=";
-        };
-        sourceRoot = ".";
-        nativeBuildInputs = [ final.autoPatchelfHook final.zstd final.addDriverRunpath final.makeWrapper ];
-        buildInputs = [ final.stdenv.cc.cc.lib final.zlib ];
-        autoPatchelfIgnoreMissingDeps = [
-          "libcuda.so.1"    # provided by NVIDIA driver at runtime (optional)
-          "libvulkan.so.1"  # provided by vulkan-loader at runtime (optional)
-        ];
-        installPhase = ''
-          runHook preInstall
-          mkdir -p $out/bin $out/lib
-          cp -r bin/ollama $out/bin/
-          cp -r lib/ollama $out/lib/
-          runHook postInstall
-        '';
-        postFixup = ''
-          # Add NVIDIA driver libs so ollama can find libcuda.so.1 at runtime.
-          # Harmless on CPU-only systems (path just doesn't exist).
-          wrapProgram $out/bin/ollama \
-            --prefix LD_LIBRARY_PATH : "${final.addDriverRunpath.driverLink}/lib"
-        '';
-        meta = with final.lib; {
-          description = "Get up and running with large language models locally";
-          homepage = "https://ollama.com";
-          license = licenses.mit;
-          platforms = [ "x86_64-linux" ];
-          mainProgram = "ollama";
-        };
-      };
-    })
-
-    # Moon v2.x - nixpkgs 26.05 ships 1.x; use the official pre-built musl
+# Moon v2.x - nixpkgs 26.05 ships 1.x; use the official pre-built musl
     # binary instead of compiling from source (Rust builds eat several GB of RAM).
     # To update: bump version + hash (get new hash from the .sha256 file on the
     # GitHub release page, then convert: echo <hex> | xxd -r -p | base64).
@@ -126,14 +83,17 @@
     })
 
     # Ollama - latest stable binary release (bundled CUDA/Vulkan)
+    # Binary bundles CUDA/Vulkan runtime stubs; autoPatchelfIgnoreMissingDeps
+    # lets it build on CPU-only systems. GPU acceleration is picked up
+    # automatically when an NVIDIA/Vulkan driver is present.
     # Update: bump version + hash, find latest at https://github.com/ollama/ollama/releases
     (final: prev: {
       ollama = final.stdenv.mkDerivation rec {
         pname = "ollama";
-        version = "0.21.0";
+        version = "0.32.14";
         src = final.fetchurl {
           url = "https://github.com/ollama/ollama/releases/download/v${version}/ollama-linux-amd64.tar.zst";
-          hash = "sha256-p/xCYSmK7Kj3hfaVl4pemXAE1BTBPUz7lloQ2p9Ntuo=";
+          hash = "sha256-xiCRenHhRqs6f4kwhPBmBpxMZdFE74N5qRw8vosn3o8=";
         };
         sourceRoot = ".";
         nativeBuildInputs = [ final.autoPatchelfHook final.zstd final.addDriverRunpath final.makeWrapper ];
