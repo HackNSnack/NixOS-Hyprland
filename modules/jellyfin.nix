@@ -1,69 +1,65 @@
 # nixos/jellyfin.nix — shared, parameterized Tier 1 module
 #
-# Usage in your flake (~/NixOS-Hyprland): import this file as a module on each
-# host, then set the `jellyfin-media.accel` option per host.
+# Import this file as a module on each host. The module carries sensible
+# defaults for the common knobs (user, mediaDir, enable) and DERIVES the
+# hardware accel knobs from the per-host GPU driver toggles (drivers.*.enable),
+# which the installer sets per host — so no accel config lives in the host
+# config.nix. A host can still override any jellyfin-media.* option explicitly.
 #
-# The module defines a custom option `jellyfin-media` so each host declares
-# only what differs (accel + user + media dir), and the shared Jellyfin config
-# is written once here.
+# The installer (nhl_prompt_services in scripts/lib/install-common.sh) only
+# inserts/removes `jellyfin-media.enable = true;` per host (opt-in). cudaSupport
+# / NVENC wiring is deferred (nvidia → CPU transcode until you set
+# accel.type = "nvenc" + cudaSupport = true manually).
 #
-# --- Example: desktop (RTX 4090, NVENC) ---
+# --- Override example (only if a host needs to differ from the derived defaults) ---
 #   { ... }: {
-#     imports = [ ./path/to/jellyfin.nix ];
 #     jellyfin-media = {
-#       user = "mathipe";
-#       mediaDir = "/data/media";
+#       enable = true;
 #       accel.type = "nvenc";
 #       accel.device = "/dev/dri/by-path/pci-0000:01:00.0-render";
 #       cudaSupport = true;     # NVENC needs CUDA (larger closure)
 #     };
 #   }
 #
-# --- Example: laptop (Intel Iris Xe, VAAPI) ---
-#   { ... }: {
-#     imports = [ ./path/to/jellyfin.nix ];
-#     jellyfin-media = {
-#       user = "mathipe";
-#       mediaDir = "/home/mathipe/media";
-#       accel.type = "vaapi";
-#       accel.device = "/dev/dri/renderD128";
-#       intelMediaDriver = true;   # adds intel-media-driver + intel-compute-runtime
-#     };
-#   }
-#
-# --- Example: minimal test (no hardware accel, CPU transcode) ---
-#   { ... }: {
-#     imports = [ ./path/to/jellyfin.nix ];
-#     jellyfin-media = {
-#       user = "mathipe";
-#       mediaDir = "/home/mathipe/media";
-#       # accel omitted → no hardwareAcceleration block, CPU transcode only
-#     };
-#   }
-#
 # Discover device paths on the host with:
 #   lspci | grep -iE 'vga|3d|nvidia|intel'
 #   ls -l /dev/dri/by-path/ | grep render     # match PCI bus from lspci
-{ config, lib, pkgs, ... }:
-let
-  cfg = config.jellyfin-media;
-in
 {
+  config,
+  lib,
+  pkgs,
+  username,
+  ...
+}: let
+  cfg = config.jellyfin-media;
+in {
   # ---- custom option (per-host knobs) -------------------------------------
   options.jellyfin-media = {
+    enable = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = ''
+        Enable the Jellyfin media server on this host. Keep this off on hosts
+        that shouldn't expose the service (e.g. to avoid two instances on the
+        same LAN). The installer toggles this per host.
+      '';
+    };
+
     user = lib.mkOption {
       type = lib.types.str;
+      default = "${username}";
       description = "User to run Jellyfin as (so it can read the media dir without permission fights).";
     };
 
     mediaDir = lib.mkOption {
       type = lib.types.str;
+      default = "/home/${username}/Prosjekter/Personal/jellyfin-media-server/media";
       description = "Absolute path to the media directory (movies/tv subdirs).";
     };
 
     accel = {
       type = lib.mkOption {
-        type = lib.types.nullOr (lib.types.enum [ "nvenc" "vaapi" "qsv" ]);
+        type = lib.types.nullOr (lib.types.enum ["nvenc" "vaapi" "qsv"]);
         default = null;
         description = "Hardware transcode type. null = CPU-only (no hw accel).";
       };
@@ -88,14 +84,32 @@ in
   };
 
   # ---- shared Jellyfin config ---------------------------------------------
-  config = {
+  config = lib.mkIf cfg.enable {
+    # Derive hardware accel from the per-host GPU driver toggles
+    # (drivers.*.enable), which the installer sets per host (see
+    # nhl_detect_gpu_and_toggle). A host can still override any of these by
+    # setting jellyfin-media.accel.* explicitly.
+    # NVENC + CUDA is deferred (nvidia → CPU transcode for now); set
+    # accel.type = "nvenc" + cudaSupport = true manually when wiring it up.
+    jellyfin-media.accel.type = lib.mkDefault (
+      if config.drivers.nvidia.enable || config.drivers.nvidia-prime.enable then null
+      else if config.drivers.intel.enable || config.drivers.amdgpu.enable then "vaapi"
+      else null
+    );
+    jellyfin-media.accel.device = lib.mkDefault (
+      if config.drivers.intel.enable || config.drivers.amdgpu.enable
+      then "/dev/dri/renderD128"
+      else null
+    );
+    jellyfin-media.intelMediaDriver = lib.mkDefault config.drivers.intel.enable;
+
     nixpkgs.config.cudaSupport = cfg.cudaSupport;
 
     hardware.graphics = lib.mkIf cfg.intelMediaDriver {
       enable = true;
       extraPackages = with pkgs; [
-        intel-media-driver      # Broadwell+ (ca. 2014+); set LIBVA_DRIVER_NAME=iHD
-        intel-compute-runtime    # newer Intel iGPU OpenCL
+        intel-media-driver # Broadwell+ (ca. 2014+); set LIBVA_DRIVER_NAME=iHD
+        intel-compute-runtime # newer Intel iGPU OpenCL
         intel-ocl
       ];
     };
@@ -107,7 +121,7 @@ in
 
     services.jellyfin = {
       enable = true;
-      openFirewall = true;                     # opens :8096 to LAN; WAN stays blocked
+      openFirewall = true; # opens :8096 to LAN; WAN stays blocked
       user = cfg.user;
 
       hardwareAcceleration = lib.mkIf (cfg.accel.type != null) {

@@ -145,3 +145,46 @@ nhl_check_go_version() {
   echo "${ERROR} Unable to determine Go version. Please ensure Go ${min_version}+ is available."
   exit 1
 }
+
+# Prompt for optional services (NanoClaw, Jellyfin) and insert/remove their
+# `enable = true;` override in the host config.nix. The enable flags default to
+# false in their modules, so "off" = no line at all (module default applies) —
+# no duplicated defaults in config.nix. Jellyfin accel is derived in the module
+# from the per-host driver toggles, so the installer touches nothing but enable.
+# Args: $1 = hostName
+nhl_prompt_services() {
+  local hostName="$1"
+  local cfg="./hosts/$hostName/config.nix"
+  [ -f "$cfg" ] || cfg="./hosts/default/config.nix"
+
+  # Idempotency: remove any previously-inserted managed enable lines first,
+  # so re-runs never stack duplicates. Lines are tagged # nhl:nanoclaw-enable /
+  # # nhl:jellyfin-enable so only installer-managed lines are touched.
+  sed -i '/# nhl:nanoclaw-enable/d' "$cfg" 2>/dev/null || true
+  sed -i '/# nhl:jellyfin-enable/d' "$cfg" 2>/dev/null || true
+
+  echo "-----"
+  echo "$NOTE Optional services (default off to avoid duplicate instances on the LAN):"
+
+  local ans
+  read -rp "$CAT Enable NanoClaw (AI assistant)? [y/N]: " ans </dev/tty || true
+  if [[ "$ans" =~ ^[Yy]$ ]]; then
+    # Insert the override below the anchor in config.nix.
+    sed -i 's|# nhl:services-anchor|# nhl:services-anchor\n  services.nanoclaw.enable = true; # nhl:nanoclaw-enable|' "$cfg" || true
+    echo "$OK NanoClaw enabled"
+  else
+    echo "$NOTE NanoClaw left disabled"
+  fi
+
+  read -rp "$CAT Enable Jellyfin media server? [y/N]: " ans </dev/tty || true
+  if [[ "$ans" =~ ^[Yy]$ ]]; then
+    sed -i 's|# nhl:services-anchor|# nhl:services-anchor\n  jellyfin-media.enable = true; # nhl:jellyfin-enable|' "$cfg" || true
+    # Accel is derived in the module from drivers.*.enable (set above by
+    # nhl_detect_gpu_and_toggle). NVENC/CUDA is deferred — to enable NVENC
+    # later, set jellyfin-media.accel.type = "nvenc" + cudaSupport = true
+    # (and the device path) in the host config.
+    echo "$OK Jellyfin enabled (accel derived from GPU drivers; NVENC deferred)"
+  else
+    echo "$NOTE Jellyfin left disabled"
+  fi
+}

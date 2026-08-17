@@ -6,11 +6,9 @@
   username,
   options,
   ...
-}:
-let
+}: let
   inherit (import ./variables.nix) keyboardLayout;
-in
-{
+in {
   imports = [
     ./hardware.nix
     ./users.nix
@@ -72,8 +70,8 @@ in
     ];
 
     # OBS Virtual Cam Support
-    kernelModules = [ "v4l2loopback" ];
-    extraModulePackages = [ pkgs.linuxPackages_zen.v4l2loopback ];
+    kernelModules = ["v4l2loopback"];
+    extraModulePackages = [pkgs.linuxPackages_zen.v4l2loopback];
 
     initrd = {
       availableKernelModules = [
@@ -84,7 +82,7 @@ in
         "usbhid"
         "sd_mod"
       ];
-      kernelModules = [ ];
+      kernelModules = [];
     };
 
     # Needed For Some Steam Games
@@ -157,22 +155,21 @@ in
   vm.guest-services.enable = false;
   local.hardware-clock.enable = false;
 
-  # Jellyfin media server — laptop (Intel Iris Xe) test install, Tier 1.
-  # VAAPI hardware transcode via the iGPU render node. Swap to the NVENC
-  # block (see nixos/jellyfin.nix header) when running this flake on the desktop.
-  jellyfin-media = {
-    user = "${username}";
-    mediaDir = "/home/${username}/Prosjekter/Personal/jellyfin-media-server/media";
-    accel.type = "vaapi";
-    accel.device = "/dev/dri/renderD128";
-    intelMediaDriver = true;
-  };
+  # Optional services — opt in per host. The enable flags default to false in
+  # their modules (single source), so config.nix carries NO enable line when a
+  # host is off — the module default applies. The installer inserts a
+  # `services.X.enable = true;` / `jellyfin-media.enable = true;` override below
+  # the anchor when you opt in (see nhl_prompt_services in
+  # scripts/lib/install-common.sh). Jellyfin accel is derived in the module
+  # from the per-host driver toggles (drivers.*.enable), so nothing else lives
+  # here. This keeps one consolidated branch with per-host opt-in.
+  # nhl:services-anchor
 
   # networking
   networking = {
     networkmanager.enable = true;
     hostName = "${host}";
-    timeServers = options.networking.timeServers.default ++ [ "pool.ntp.org" ];
+    timeServers = options.networking.timeServers.default ++ ["pool.ntp.org"];
 
     # Custom hosts entries for local development
     hosts = {
@@ -327,7 +324,7 @@ in
   };
 
   systemd.services.flatpak-repo = {
-    path = [ pkgs.flatpak ];
+    path = [pkgs.flatpak];
     script = ''
       flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     '';
@@ -414,8 +411,8 @@ in
         "nix-command"
         "flakes"
       ];
-      substituters = [ "https://hyprland.cachix.org" ];
-      trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
+      substituters = ["https://hyprland.cachix.org"];
+      trusted-public-keys = ["hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="];
 
       # ── Build parallelism ───────────────────────────────────────────────────
       # Default "auto" = one job per CPU thread (12 on your i7-1355U).
@@ -440,7 +437,7 @@ in
     # The scheduled job below does the exact same thing once a week instead.
     optimise = {
       automatic = true;
-      dates = [ "weekly" ];
+      dates = ["weekly"];
     };
 
     gc = {
@@ -487,8 +484,8 @@ in
   # Firewall configuration
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ 80 ];
-    allowedUDPPorts = [ 80 ];
+    allowedTCPPorts = [80];
+    allowedUDPPorts = [80];
     # Allow traffic on bridge interfaces (Docker, VMs)
     # Note: "br+" only matches Docker's custom-network bridges (br-<hash>);
     # the default Docker bridge is always named "docker0" and needs its own rule.

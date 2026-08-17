@@ -44,10 +44,10 @@
 {
   pkgs,
   config,
+  lib,
   username,
   ...
-}:
-let
+}: let
   projectRoot = "/home/${username}/Prosjekter/Personal/Slackbot/nanoclaw_bot/nanoclaw";
 
   # ── Install slug ─────────────────────────────────────────────────────────
@@ -70,8 +70,8 @@ let
   # itself mounts (session DBs, group folder, shared source).
   mountAllowlist = pkgs.writeText "nanoclaw-mount-allowlist.json" (
     builtins.toJSON {
-      allowedRoots = [ ];
-      blockedPatterns = [ ];
+      allowedRoots = [];
+      blockedPatterns = [];
       nonMainReadOnly = true;
     }
   );
@@ -281,124 +281,129 @@ let
   ncl = pkgs.writeShellScriptBin "ncl" ''
     exec "${projectRoot}/bin/ncl" "$@"
   '';
-in
-{
-  # ── Systemd user service ──────────────────────────────────────────────────
-  # Declared at the system level so it lands in /etc/systemd/user/ and is
-  # available without home-manager.
-  # No `wantedBy` means it never auto-starts on login — use nanoclaw-start.
-  systemd.user.services.${serviceName} = {
-    description = "NanoClaw personal AI assistant (slug: ${installSlug})";
 
-    # Ensure the network stack is up before nanoclaw attempts to reach the
-    # OneCLI gateway or connect to Slack via socket mode.
-    after = [ "network.target" ];
+  cfg = config.services.nanoclaw;
+in {
+  options.services.nanoclaw.enable = lib.mkEnableOption "NanoClaw personal AI assistant";
 
-    serviceConfig = {
-      Type = "simple";
+  config = lib.mkIf cfg.enable {
+    # ── Systemd user service ──────────────────────────────────────────────────
+    # Declared at the system level so it lands in /etc/systemd/user/ and is
+    # available without home-manager.
+    # No `wantedBy` means it never auto-starts on login — use nanoclaw-start.
+    systemd.user.services.${serviceName} = {
+      description = "NanoClaw personal AI assistant (slug: ${installSlug})";
 
-      # Runs the compiled host process (pnpm run build → dist/).
-      # nodejs is pinned to the same derivation used in dev-node.nix so the
-      # Node version matches the one that compiled better-sqlite3's native
-      # addon (.node file).  If the Node package is bumped in a future
-      # nixpkgs update, re-run `pnpm install` in the project root so
-      # better-sqlite3 is recompiled against the new version.
-      ExecStart = "${pkgs.nodejs_22}/bin/node ${projectRoot}/dist/index.js";
-      WorkingDirectory = projectRoot;
+      # Ensure the network stack is up before nanoclaw attempts to reach the
+      # OneCLI gateway or connect to Slack via socket mode.
+      after = ["network.target"];
 
-      # Restart on crash (e.g. unhandled rejection) but not on intentional
-      # stop (clean exit code 0 from nanoclaw-stop).
-      Restart = "on-failure";
-      RestartSec = "5";
+      serviceConfig = {
+        Type = "simple";
 
-      # Kill only the main process; Docker containers spawned per-session
-      # have their own lifecycle and should not be killed with the host.
-      KillMode = "process";
+        # Runs the compiled host process (pnpm run build → dist/).
+        # nodejs is pinned to the same derivation used in dev-node.nix so the
+        # Node version matches the one that compiled better-sqlite3's native
+        # addon (.node file).  If the Node package is bumped in a future
+        # nixpkgs update, re-run `pnpm install` in the project root so
+        # better-sqlite3 is recompiled against the new version.
+        ExecStart = "${pkgs.nodejs_22}/bin/node ${projectRoot}/dist/index.js";
+        WorkingDirectory = projectRoot;
 
-      # HOME: os.homedir() calls inside nanoclaw need this — e.g. resolving
-      #       ~/.config/nanoclaw/mount-allowlist.json (src/config.ts).
-      # PATH: docker must be reachable for container spawning at runtime.
-      #       nodejs is included for any child node invocations.
-      #       System paths cover everything else (onecli, etc.).
-      # TZ:   read by src/config.ts for scheduled task timezone resolution.
-      #       Pulled from time.timeZone so it stays in sync with the system.
-      Environment = [
-        "HOME=/home/${username}"
-        "PATH=${pkgs.nodejs_22}/bin:${pkgs.docker}/bin:/run/wrappers/bin:/run/current-system/sw/bin"
-        "TZ=${config.time.timeZone}"
-      ];
+        # Restart on crash (e.g. unhandled rejection) but not on intentional
+        # stop (clean exit code 0 from nanoclaw-stop).
+        Restart = "on-failure";
+        RestartSec = "5";
 
-      # Secrets file for variables that must be in process.env at runtime.
-      #
-      # Background: nanoclaw reads most config via readEnvFile() in src/env.ts,
-      # which parses the project's .env file directly and does NOT populate
-      # process.env.  Variables read that way (ONECLI_URL, SLACK_BOT_TOKEN,
-      # SLACK_SIGNING_SECRET, etc.) belong in <projectRoot>/.env, not here.
-      #
-      # SLACK_APP_TOKEN is different — @chat-adapter/slack reads it exclusively
-      # via process.env.SLACK_APP_TOKEN (see dist/index.js:4262 in the package).
-      # src/channels/slack.ts does not pass it through readEnvFile, so it must
-      # arrive via the environment.  This EnvironmentFile is the right place.
-      #
-      # Minimum contents of ~/.config/nanoclaw/secrets.env:
-      #   SLACK_APP_TOKEN=xapp-...
-      #
-      # The leading '-' tells systemd not to fail if the file is absent,
-      # allowing the service to start before the secrets file is created.
-      EnvironmentFile = "-/home/${username}/.config/nanoclaw/secrets.env";
+        # Kill only the main process; Docker containers spawned per-session
+        # have their own lifecycle and should not be killed with the host.
+        KillMode = "process";
 
-      # Append to files rather than writing to the journal, so logs survive
-      # restarts and are easy to inspect from the project directory.
-      # The directories are created by the tmpfiles rules below.
-      StandardOutput = "append:${projectRoot}/logs/nanoclaw.log";
-      StandardError = "append:${projectRoot}/logs/nanoclaw.error.log";
+        # HOME: os.homedir() calls inside nanoclaw need this — e.g. resolving
+        #       ~/.config/nanoclaw/mount-allowlist.json (src/config.ts).
+        # PATH: docker must be reachable for container spawning at runtime.
+        #       nodejs is included for any child node invocations.
+        #       System paths cover everything else (onecli, etc.).
+        # TZ:   read by src/config.ts for scheduled task timezone resolution.
+        #       Pulled from time.timeZone so it stays in sync with the system.
+        Environment = [
+          "HOME=/home/${username}"
+          "PATH=${pkgs.nodejs_22}/bin:${pkgs.docker}/bin:/run/wrappers/bin:/run/current-system/sw/bin"
+          "TZ=${config.time.timeZone}"
+        ];
+
+        # Secrets file for variables that must be in process.env at runtime.
+        #
+        # Background: nanoclaw reads most config via readEnvFile() in src/env.ts,
+        # which parses the project's .env file directly and does NOT populate
+        # process.env.  Variables read that way (ONECLI_URL, SLACK_BOT_TOKEN,
+        # SLACK_SIGNING_SECRET, etc.) belong in <projectRoot>/.env, not here.
+        #
+        # SLACK_APP_TOKEN is different — @chat-adapter/slack reads it exclusively
+        # via process.env.SLACK_APP_TOKEN (see dist/index.js:4262 in the package).
+        # src/channels/slack.ts does not pass it through readEnvFile, so it must
+        # arrive via the environment.  This EnvironmentFile is the right place.
+        #
+        # Minimum contents of ~/.config/nanoclaw/secrets.env:
+        #   SLACK_APP_TOKEN=xapp-...
+        #
+        # The leading '-' tells systemd not to fail if the file is absent,
+        # allowing the service to start before the secrets file is created.
+        EnvironmentFile = "-/home/${username}/.config/nanoclaw/secrets.env";
+
+        # Append to files rather than writing to the journal, so logs survive
+        # restarts and are easy to inspect from the project directory.
+        # The directories are created by the tmpfiles rules below.
+        StandardOutput = "append:${projectRoot}/logs/nanoclaw.log";
+        StandardError = "append:${projectRoot}/logs/nanoclaw.error.log";
+      };
     };
+
+    # ── systemd-tmpfiles ──────────────────────────────────────────────────────
+    # Creates directories and seeds config files.  All rules are idempotent and
+    # run at boot (and on `systemd-tmpfiles --create` after a rebuild).
+    systemd.tmpfiles.rules = [
+      # Config directory — holds mount-allowlist.json and secrets.env.
+      "d /home/${username}/.config/nanoclaw 0755 ${username} users -"
+
+      # Seed mount-allowlist.json from the Nix store on first creation.
+      # 'C' (copy) only acts if the target does not already exist, so manual
+      # edits to allowedRoots are preserved across nixos-rebuild invocations.
+      "C /home/${username}/.config/nanoclaw/mount-allowlist.json 0644 ${username} users - ${mountAllowlist}"
+
+      # Log directory referenced by StandardOutput/StandardError above.
+      # Must exist before the service attempts to open the append target,
+      # otherwise systemd will refuse to start the service.
+      "d ${projectRoot}/logs 0755 ${username} users -"
+
+      # SQLite database directory.  src/config.ts resolves DATA_DIR as
+      # path.resolve(process.cwd(), 'data') → <projectRoot>/data at runtime.
+      "d ${projectRoot}/data 0755 ${username} users -"
+
+      # Ensure ~/.onecli/ exists before writing into it.  The OneCLI installer
+      # creates it, but the 'd' rule is harmless if it already exists.
+      "d /home/${username}/.onecli 0755 ${username} users -"
+
+      # ~/.onecli/.env — sets ONECLI_BIND_HOST=0.0.0.0 so port bindings use all
+      # interfaces.  Docker Compose reads this file for variable substitution.
+      "L+ /home/${username}/.onecli/.env - - - - ${onecliEnv}"
+
+      # docker-compose.override.yml — corrects APP_URL/GATEWAY_API_URL back to
+      # 127.0.0.1 (environment mapping merge replaces; no ports section to avoid
+      # array-append duplication).
+      "L+ /home/${username}/.onecli/docker-compose.override.yml - - - - ${onecliOverride}"
+    ];
+
+    # ── System packages ───────────────────────────────────────────────────────
+    # nanoclaw-start / nanoclaw-stop manage the full stack (OneCLI gateway +
+    # nanoclaw service) in the correct dependency order.
+    # ncl is the interactive CLI client for sending messages to the running service.
+    environment.systemPackages = [
+      nanoclaw-start
+      nanoclaw-stop
+      nanoclaw-rebuild
+      nanoclaw-restart
+      ncl
+    ];
   };
-
-  # ── systemd-tmpfiles ──────────────────────────────────────────────────────
-  # Creates directories and seeds config files.  All rules are idempotent and
-  # run at boot (and on `systemd-tmpfiles --create` after a rebuild).
-  systemd.tmpfiles.rules = [
-    # Config directory — holds mount-allowlist.json and secrets.env.
-    "d /home/${username}/.config/nanoclaw 0755 ${username} users -"
-
-    # Seed mount-allowlist.json from the Nix store on first creation.
-    # 'C' (copy) only acts if the target does not already exist, so manual
-    # edits to allowedRoots are preserved across nixos-rebuild invocations.
-    "C /home/${username}/.config/nanoclaw/mount-allowlist.json 0644 ${username} users - ${mountAllowlist}"
-
-    # Log directory referenced by StandardOutput/StandardError above.
-    # Must exist before the service attempts to open the append target,
-    # otherwise systemd will refuse to start the service.
-    "d ${projectRoot}/logs 0755 ${username} users -"
-
-    # SQLite database directory.  src/config.ts resolves DATA_DIR as
-    # path.resolve(process.cwd(), 'data') → <projectRoot>/data at runtime.
-    "d ${projectRoot}/data 0755 ${username} users -"
-
-    # Ensure ~/.onecli/ exists before writing into it.  The OneCLI installer
-    # creates it, but the 'd' rule is harmless if it already exists.
-    "d /home/${username}/.onecli 0755 ${username} users -"
-
-    # ~/.onecli/.env — sets ONECLI_BIND_HOST=0.0.0.0 so port bindings use all
-    # interfaces.  Docker Compose reads this file for variable substitution.
-    "L+ /home/${username}/.onecli/.env - - - - ${onecliEnv}"
-
-    # docker-compose.override.yml — corrects APP_URL/GATEWAY_API_URL back to
-    # 127.0.0.1 (environment mapping merge replaces; no ports section to avoid
-    # array-append duplication).
-    "L+ /home/${username}/.onecli/docker-compose.override.yml - - - - ${onecliOverride}"
-  ];
-
-  # ── System packages ───────────────────────────────────────────────────────
-  # nanoclaw-start / nanoclaw-stop manage the full stack (OneCLI gateway +
-  # nanoclaw service) in the correct dependency order.
-  # ncl is the interactive CLI client for sending messages to the running service.
-  environment.systemPackages = [
-    nanoclaw-start
-    nanoclaw-stop
-    nanoclaw-rebuild
-    nanoclaw-restart
-    ncl
-  ];
 }

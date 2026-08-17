@@ -191,6 +191,12 @@ if $DO_SYSTEM_CONFIG; then
     fi
     echo "-----"
 
+    # Optional services — opt in per host to avoid duplicate instances on the LAN
+    if type nhl_prompt_services >/dev/null 2>&1; then
+        nhl_prompt_services "$hostName"
+    fi
+    echo "-----"
+
     read -rp "$CAT Enter your keyboard layout: [ no ] " keyboardLayout </dev/tty
     if [ -z "$keyboardLayout" ]; then
         keyboardLayout="no"
