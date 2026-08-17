@@ -104,6 +104,11 @@ alias nix_list_gen="sudo nix-env --list-generations -p /nix/var/nix/profiles/sys
 alias nix_del_old="sudo nix-env --delete-generations -p /nix/var/nix/profiles/system"
 
 # ============================================================
+# OLLAMA (NixOS Docker bridge IP)
+# ============================================================
+export OLLAMA_HOST=172.17.0.1:11434
+
+# ============================================================
 # STARTUP
 # ============================================================
 # Display system info on terminal launch

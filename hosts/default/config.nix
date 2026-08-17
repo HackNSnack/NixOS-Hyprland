@@ -53,6 +53,9 @@ in
 
     # Services
     ../../modules/services/nanoclaw.nix
+
+    # Jellyfin media server (shared parameterized module; per-host settings below)
+    ../../modules/jellyfin.nix
   ];
 
   # BOOT related stuff
@@ -154,6 +157,17 @@ in
   vm.guest-services.enable = false;
   local.hardware-clock.enable = false;
 
+  # Jellyfin media server — laptop (Intel Iris Xe) test install, Tier 1.
+  # VAAPI hardware transcode via the iGPU render node. Swap to the NVENC
+  # block (see nixos/jellyfin.nix header) when running this flake on the desktop.
+  jellyfin-media = {
+    user = "${username}";
+    mediaDir = "/home/${username}/Prosjekter/Personal/jellyfin-media-server/media";
+    accel.type = "vaapi";
+    accel.device = "/dev/dri/renderD128";
+    intelMediaDriver = true;
+  };
+
   # networking
   networking = {
     networkmanager.enable = true;
@@ -245,6 +259,24 @@ in
       packages = [
         {
           appId = "com.bambulab.BambuStudio";
+          origin = "flathub";
+        }
+        # Heavy GUI apps moved out of the Nix closure to shrink rebuilds.
+        # Removed from modules/packages/*; revert there if you drop these.
+        {
+          appId = "org.freecad.FreeCAD";
+          origin = "flathub";
+        }
+        {
+          appId = "us.zoom.Zoom";
+          origin = "flathub";
+        }
+        {
+          appId = "com.obsproject.Studio";
+          origin = "flathub";
+        }
+        {
+          appId = "com.github.IsmaelMartinez.teams_for_linux";
           origin = "flathub";
         }
       ];
@@ -458,8 +490,16 @@ in
     allowedTCPPorts = [ 80 ];
     allowedUDPPorts = [ 80 ];
     # Allow traffic on bridge interfaces (Docker, VMs)
-    extraCommands = "iptables -I nixos-fw 1 -i br+ -j ACCEPT";
-    extraStopCommands = "iptables -D nixos-fw -i br+ -j ACCEPT || true";
+    # Note: "br+" only matches Docker's custom-network bridges (br-<hash>);
+    # the default Docker bridge is always named "docker0" and needs its own rule.
+    extraCommands = ''
+      iptables -I nixos-fw 1 -i br+ -j ACCEPT
+      iptables -I nixos-fw 1 -i docker0 -j ACCEPT
+    '';
+    extraStopCommands = ''
+      iptables -D nixos-fw -i br+ -j ACCEPT || true
+      iptables -D nixos-fw -i docker0 -j ACCEPT || true
+    '';
   };
 
   # This value determines the NixOS release from which the default

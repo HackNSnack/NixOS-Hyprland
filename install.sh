@@ -217,6 +217,10 @@ if $DO_SYSTEM_CONFIG; then
         sudo nixos-generate-config --show-hardware-config >"$hardware_file" 2>/dev/null
 
         if [ -f "$hardware_file" ]; then
+            # Strip envfs-managed /bin and /usr/bin entries that nixos-generate-config
+            # mis-detects as bind mounts (and duplicates). envfs owns these; keeping
+            # them in hardware.nix causes 'attribute already defined' eval errors.
+            sed -i -E '/fileSystems\."\/usr\/bin"/,/^    \};$/d; /fileSystems\."\/bin"/,/^    \};$/d' "$hardware_file"
             echo "${OK} Hardware configuration successfully generated."
             break
         else

@@ -148,7 +148,9 @@ in
     dua
     duf
     cava
-    cargo
+    # cargo removed from system closure (~2.4 GB). Add a devShell in
+    # flake.nix (devShells.${system}.rust = pkgs.mkShell { packages = [ cargo rustc ... ]; })
+    # or a local shell.nix, then use `nix develop .#rust` when you need Rust.
     clang
     cmake
     cliphist
@@ -262,7 +264,7 @@ in
     ugrep
     unrar
     v4l-utils
-    obs-studio
+    # obs-studio  # Moved to Flatpak (com.obsproject.Studio) — ~4 GB closure
     zoxide
 
     # Hardware related

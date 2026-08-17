@@ -46,6 +46,9 @@ in
     # Gemini CLI
     pkgs.gemini-cli
 
+    # Ollama for local LLMs - from overlay (latest binary, CPU-only safe)
+    pkgs.ollama
+
     # OneCLI CLI - HTTPS credential proxy management (see nanoclaw setup)
     onecli-cli
 
