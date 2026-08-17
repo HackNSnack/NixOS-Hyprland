@@ -50,7 +50,7 @@
     }:
     let
       system = "x86_64-linux";
-      host = "default";
+      host = "desktop";
       username = "mathipe";
 
       pkgs = import nixpkgs {

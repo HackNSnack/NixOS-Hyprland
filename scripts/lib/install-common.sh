@@ -188,3 +188,20 @@ nhl_prompt_services() {
     echo "$NOTE Jellyfin left disabled"
   fi
 }
+
+# Remove stale Home Manager backup files (*.hm-bak) before a rebuild.
+# flake.nix sets home-manager.backupFileExtension = "hm-bak", so when HM takes
+# over a file that already exists on disk it moves it to <file>.hm-bak. HM never
+# cleans these up, so a stale .hm-bak from a prior failed activation makes the
+# next activation refuse with "Existing file ... would be clobbered by backing
+# up ...". Clearing them before rebuild breaks that stuck loop.
+nhl_clean_hm_backups() {
+  local removed=0 f
+  while IFS= read -r -d '' f; do
+    rm -f "$f"
+    removed=$((removed + 1))
+  done < <(find "${HOME}/.config" -name '*.hm-bak' -type f -print0 2>/dev/null)
+  if [ "$removed" -gt 0 ]; then
+    echo "$NOTE Removed $removed stale Home Manager backup(s) (*.hm-bak) under ~/.config"
+  fi
+}

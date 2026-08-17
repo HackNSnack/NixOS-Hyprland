@@ -276,6 +276,10 @@ if $DO_NIXOS_REBUILD; then
     # Set the Nix configuration for experimental features
     NIX_CONFIG="experimental-features = nix-command flakes"
     #sudo nix flake update
+    # Clear stale Home Manager backups so activation doesn't fail on a clobbered .hm-bak
+    if type nhl_clean_hm_backups >/dev/null 2>&1; then
+        nhl_clean_hm_backups
+    fi
     sudo nixos-rebuild switch --flake ~/NixOS-Hyprland/#"${hostName}"
 
     echo "-----"
