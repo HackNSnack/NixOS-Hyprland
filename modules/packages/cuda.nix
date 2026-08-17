@@ -21,6 +21,14 @@
     LD_LIBRARY_PATH = "/run/opengl-driver/lib";
   };
 
-  # Allow unfree CUDA packages
-  nixpkgs.config.cudaSupport = true;
+  # NOTE: deliberately NOT setting nixpkgs.config.cudaSupport = true here.
+  # cudaPackages.* above are a separate package set and are unaffected by
+  # that flag either way. Setting it globally flips `enableCuda ? config.cudaSupport`
+  # on for every package with an optional CUDA branch (notably opencv4, which
+  # frei0r-plugins -> jellyfin-ffmpeg and pillow-heif -> imageio -> waypaper
+  # both pull in transitively). CUDA-enabled opencv is never present on
+  # cache.nixos.org, so it silently forces a full from-source OpenCV+CUDA
+  # rebuild on every closure change. Packages that actually want a CUDA
+  # build locally (nvtopPackages.full, btop.override { cudaSupport = ...; })
+  # already opt in explicitly in packages.nix - that stays intact.
 }
