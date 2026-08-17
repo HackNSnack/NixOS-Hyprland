@@ -167,7 +167,9 @@ in {
   # from the per-host driver toggles (drivers.*.enable), so nothing else lives
   # here. This keeps one consolidated branch with per-host opt-in.
   # nhl:services-anchor
+  ollama-net.enable = true; # nhl:ollama-enable
   services.tailscale = { enable = true; openFirewall = true; }; # nhl:tailscale-enable
+  jellyfin-media.enable = true; # nhl:jellyfin-enable
 
   # networking
   networking = {
