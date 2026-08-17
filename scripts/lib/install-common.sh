@@ -159,9 +159,12 @@ nhl_prompt_services() {
 
   # Idempotency: remove any previously-inserted managed enable lines first,
   # so re-runs never stack duplicates. Lines are tagged # nhl:nanoclaw-enable /
-  # # nhl:jellyfin-enable so only installer-managed lines are touched.
+  # # nhl:jellyfin-enable / # nhl:tailscale-enable / # nhl:ollama-enable so only
+  # installer-managed lines are touched.
   sed -i '/# nhl:nanoclaw-enable/d' "$cfg" 2>/dev/null || true
   sed -i '/# nhl:jellyfin-enable/d' "$cfg" 2>/dev/null || true
+  sed -i '/# nhl:tailscale-enable/d' "$cfg" 2>/dev/null || true
+  sed -i '/# nhl:ollama-enable/d' "$cfg" 2>/dev/null || true
 
   echo "-----"
   echo "$NOTE Optional services (default off to avoid duplicate instances on the LAN):"
@@ -186,6 +189,34 @@ nhl_prompt_services() {
     echo "$OK Jellyfin enabled (accel derived from GPU drivers; NVENC deferred)"
   else
     echo "$NOTE Jellyfin left disabled"
+  fi
+
+  # Tailscale is the network layer for remote access — once the host joins the
+  # tailnet it gets a 100.x.y.z IP and every listening service with openFirewall
+  # (or a tailscale0 interface rule) is reachable from authenticated peers.
+  # This is a host-level opt-in; per-service exposure is governed by each
+  # service's own openFirewall / networking.firewall.interfaces.tailscale0.
+  read -rp "$CAT Enable Tailscale (remote access over tailnet)? [y/N]: " ans </dev/tty || true
+  if [[ "$ans" =~ ^[Yy]$ ]]; then
+    sed -i 's|# nhl:services-anchor|# nhl:services-anchor\n  services.tailscale = { enable = true; openFirewall = true; }; # nhl:tailscale-enable|' "$cfg" || true
+    echo "$OK Tailscale enabled (run 'sudo tailscale up' after rebuild to authenticate)"
+  else
+    echo "$NOTE Tailscale left disabled"
+  fi
+
+  # Ollama is run MANUALLY (not auto-started). Enabling here only flips the
+  # ollama-net module (modules/services/ollama.nix): it opens the tailnet-only
+  # firewall rule on :11434 and adds the `ollama-net` alias (binds 0.0.0.0:11434
+  # so nanoclaw's Docker containers on docker0/172.17.0.1 AND the tailnet on
+  # tailscale0 can reach it; LAN blocked). To auto-start ollama on boot instead
+  # of running `ollama-net` by hand, set ollama-net.autoStart = true in the host
+  # config. Only enable on a GPU host (the overlay's pkgs.ollama bundles CUDA).
+  read -rp "$CAT Enable Ollama tailnet serving (manual; GPU host)? [y/N]: " ans </dev/tty || true
+  if [[ "$ans" =~ ^[Yy]$ ]]; then
+    sed -i 's|# nhl:services-anchor|# nhl:services-anchor\n  ollama-net.enable = true; # nhl:ollama-enable|' "$cfg" || true
+    echo "$OK Ollama tailnet serving enabled (run 'ollama-net' to serve; :11434 tailnet-only)"
+  else
+    echo "$NOTE Ollama tailnet serving left disabled"
   fi
 }
 

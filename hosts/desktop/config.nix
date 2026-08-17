@@ -54,6 +54,9 @@ in {
 
     # Jellyfin media server (shared parameterized module; per-host settings below)
     ../../modules/jellyfin.nix
+
+    # Ollama tailnet serving (opt-in via the module's ollama-net.enable; default off)
+    ../../modules/services/ollama.nix
   ];
 
   # BOOT related stuff
@@ -164,6 +167,7 @@ in {
   # from the per-host driver toggles (drivers.*.enable), so nothing else lives
   # here. This keeps one consolidated branch with per-host opt-in.
   # nhl:services-anchor
+  services.tailscale = { enable = true; openFirewall = true; }; # nhl:tailscale-enable
 
   # networking
   networking = {

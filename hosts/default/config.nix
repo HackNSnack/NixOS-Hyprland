@@ -54,6 +54,9 @@ in {
 
     # Jellyfin media server (shared parameterized module; per-host settings below)
     ../../modules/jellyfin.nix
+
+    # Ollama tailnet serving (opt-in via the module's ollama-net.enable; default off)
+    ../../modules/services/ollama.nix
   ];
 
   # BOOT related stuff
